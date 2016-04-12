@@ -10,8 +10,7 @@ setup(name='atmosx',
       install_requires=[
           'numpy',
           'matplotlib',
-          'emcee'
-      ],
+          'emcee'],
       test_suite='nose.collector',
       tests_require=['nose'],
       zip_safe=False)
