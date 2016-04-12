@@ -1,9 +1,9 @@
 from setuptools import setup
 
-setup(name='syncmcmc',
+setup(name='atmosx',
       version='0.1',
-      description='Fit synchrotron spectra to data using MCMC',
-      url='https://github.com/p201-sp2016/SyncMCMC',
+      description='Synchrotron Modeling using MCMC',
+      url='http://github.com/phys201-sp2016/SyncMCMC',
       author='Tarraneh Eftekhari',
       author_email='teftekhari@cfa.harvard.edu',
       packages=['syncmcmc'],
