@@ -11,5 +11,7 @@ setup(name='syncmcmc',
           'numpy'
           'matplotlib'
           'emcee'
+      test_suite='nose.collector',
+      tests_require=['nose'],
       ],
       zip_safe=False)
