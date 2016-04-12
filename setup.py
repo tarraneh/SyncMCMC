@@ -10,7 +10,6 @@ setup(name='syncmcmc',
       install_requires=[
           'numpy',
           'matplotlib',
-          'emcee',
       ],
       test_suite='nose.collector',
       tests_require=['nose'],
