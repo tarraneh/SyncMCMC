@@ -1,6 +1,6 @@
 from setuptools import setup
 
-setup(name='atmosx',
+setup(name='syncmcmc',
       version='0.1',
       description='Synchrotron Modeling using MCMC',
       url='http://github.com/phys201-sp2016/SyncMCMC',
@@ -10,7 +10,8 @@ setup(name='atmosx',
       install_requires=[
           'numpy',
           'matplotlib',
-          'emcee'],
+          'emcee',
+      ],
       test_suite='nose.collector',
       tests_require=['nose'],
       zip_safe=False)
