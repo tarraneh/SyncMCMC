@@ -8,9 +8,10 @@ setup(name='syncmcmc',
       author_email='teftekhari@cfa.harvard.edu',
       packages=['syncmcmc'],
       install_requires=[
-          'numpy'
-          'matplotlib'
-          'emcee'],
+          'numpy',
+          'matplotlib',
+          'emcee',
+      ],
       test_suite='nose.collector',
       tests_require=['nose'],
       zip_safe=False)
