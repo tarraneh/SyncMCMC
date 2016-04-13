@@ -1,6 +1,7 @@
 
 from unittest import TestCase
 
+import syncmcmc
 from syncmcmc import testprog as tp
 
 class TestMe(TestCase):
