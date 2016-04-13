@@ -1,9 +1,0 @@
-setup.py
-syncmcmc/__init__.py
-syncmcmc/testprog.py
-syncmcmc.egg-info/PKG-INFO
-syncmcmc.egg-info/SOURCES.txt
-syncmcmc.egg-info/dependency_links.txt
-syncmcmc.egg-info/not-zip-safe
-syncmcmc.egg-info/requires.txt
-syncmcmc.egg-info/top_level.txt
