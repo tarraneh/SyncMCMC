@@ -1,4 +1,4 @@
-from load_data import Fluxes
+from data_class import Fluxes
 
 def readClassFile(filename,Fluxes, separator="\t", comment='#'):
 	try:
@@ -16,5 +16,4 @@ def readClassFile(filename,Fluxes, separator="\t", comment='#'):
 		raise IOError, "Line of file %s does not have the required format: \n%s" % (filename, line)
 
 
-s = readClassFile("10days",Fluxes)
-print s.error
+
