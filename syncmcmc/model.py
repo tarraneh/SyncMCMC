@@ -5,6 +5,7 @@ import seaborn as sns
 import emcee
 import corner
 
+
 """
    Run a Markov-Chain Monte Carlo sampler to determine best fit parameters for a synchrotron model. 
    
