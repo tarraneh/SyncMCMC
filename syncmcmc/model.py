@@ -39,10 +39,15 @@ epsilon_b = 0.1
 beta_1 = 2.
 beta_2 = 1./3.
 beta_3 = (1.-p)/2.
+beta5_1 = 5.0/2.0
+beta5_2 = (1.0 - p)/2.0
 
 s_1 = 1.5
 s_2 = (1.76 + 0.05*p)
 s_3 = (0.8 - 0.03*p)
+# k = 2 (wind model)
+s_4 = 3.63 * p - 1.60
+s_5 = 1.25 - 0.18 * p
 
 
 #### Synchrotron Models ####
@@ -50,6 +55,12 @@ s_3 = (0.8 - 0.03*p)
 # Define synchrotron spectrum for model 1
 def spectrum(v,F_v,v_a,v_m):
     return F_v * (((v/v_a)**(-s_1*beta_1) + (v/v_a)**(-s_1*beta_2))**(-1./s_1)) * ((1 + (v/v_m)**(s_2*(beta_2-beta_3)))**(-1./s_2))
+
+# Define synchrotron spectrum for model 2
+def spectrum_2(v,F_4,v_a_2,v_m_2):
+    phi = (v/v_m_2)
+    return F_4 * (((phi)**(2.)) * np.exp(- s_4 * phi**(2./3.)) + phi**(5./2.) ) * ((1 + (v/v_a_2)**(s_5*(beta5_1-beta5_2)))**(-1./s_5))
+    
     
  
  
@@ -108,9 +119,9 @@ sams = sampler.run_mcmc(pos, 1000)
 samples = sampler.chain[:, 500:, :].reshape((-1, ndim))
 
 samples[:, 2] = np.exp(samples[:, 2])
-F_mcmc, va_mcmc, vm_mcmc, f_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
-                             zip(*np.percentile(samples, [16, 50, 84],
-                                                axis=0)))
+F_mcmc, va_mcmc, vm_mcmc, f_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),zip(*np.percentile(samples, [16, 50, 84],axis=0)))
+
+
 print F_mcmc
 print va_mcmc
 print vm_mcmc
