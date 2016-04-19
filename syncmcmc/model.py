@@ -81,7 +81,7 @@ error = []
 for line in open(data_file):
    lines = line.strip()
    if not line.startswith("#"):
-      columns = line.split()
+      columns = line.split(',')
       freqs.append(columns[0])
       flux.append(columns[1])
       error.append(columns[2].rstrip('\n'))
