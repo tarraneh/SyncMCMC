@@ -8,12 +8,6 @@ import os
 import argparse
 from PTmcmc import run_mcmc
 
-F_true = 10**(0.96)
-va_true = 10**(10.11)
-vm_true = 10**(11.41)
-
-#priors = FluxFrequencyPriors(UniformPrior(1,55),UniformPrior(1E9,1E13),UniformPrior(1E9,1E13))
-
 
 
 """
@@ -48,6 +42,11 @@ vm_true = 10**(11.41)
    s_2               ::  Shape of spectrum at break 2
    s_3               ::  Shape of spectrum at break 3
 """
+
+
+F_true = 10**(0.96)
+va_true = 10**(10.11)
+vm_true = 10**(11.41)
 
 # Define known parameters
 
@@ -93,6 +92,11 @@ for line in open(data_file):
       freqs.append(columns[0])
       flux.append(columns[1])
       error.append(columns[2].rstrip('\n'))
+
+flux = np.array(flux).astype(float)
+freqs = np.array(freqs).astype(float)
+error = np.array(error).astype(float)
+
 
 
 # Plot raw data if argument -r passed
@@ -158,3 +162,16 @@ final_pos = np.repeat(pos_add_dim, 5, axis=0)
 
 sampler = emcee.PTSampler(5, nwalkers, ndim, lnlike, lnprior, loglargs=[freqs,flux,error])
 sams = sampler.run_mcmc(final_pos, 1000)
+
+# Burn off initial steps
+samples = sampler.chain[0,:, 500:, :].reshape((-1, ndim))
+
+F_mcmc = np.mean(samples[:,0])
+va_mcmc = np.mean(samples[:,1])
+vm_mcmc = np.mean(samples[:,2])
+
+
+# Print results
+print "F_v = %s" % F_mcmc
+print "v_a = %s" % va_mcmc
+print "v_m = %s" % vm_mcmc
