@@ -5,7 +5,12 @@ import emcee
 import corner
 
 
-''' Use Parallel Tempering Ensemlbe to sample the posterior distribution'''
+''' Use Parallel Tempering Ensemble to sample the posterior distribution'''
+
+
+F_true = 10**(0.96)
+va_true = 10**(10.11)
+vm_true = 10**(11.41)
 
 def run_mcmc():
   # Define number of dimensions and number of walkers
