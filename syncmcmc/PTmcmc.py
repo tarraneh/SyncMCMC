@@ -1,3 +1,4 @@
+from priorclasses import FluxFrequencyPriors, UniformPrior
 import matplotlib.pyplot as plt
 import numpy as np
 import emcee
