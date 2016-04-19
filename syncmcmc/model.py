@@ -122,6 +122,15 @@ def lnlike(theta, v, y, yerr):
     return -0.5*(np.sum((y - model)**2 * inv_sigma2 - np.log(inv_sigma2)))
 
 
+# Log priors
+
+def lnprior(theta):
+    F_v,v_a,v_m,lnf = theta
+    if (1. < F_v < 55.) and (10**(8.) < v_a < 10**(13.)) and (10**(9.) < v_m < 10**(13.)) and (-3 < lnf < -0.01):
+
+        return 0.0
+    return -np.inf
+
 # Log probability
 
 def lnprob(theta, v, y, yerr, prior):
@@ -146,5 +155,5 @@ pos = np.column_stack((frand,varand,vmrand,yerrand))
 pos_add_dim = np.expand_dims(pos,axis=0)
 final_pos = np.repeat(pos_add_dim, 5, axis=0)
 
-sampler = emcee.PTSampler(5, nwalkers, ndim, lnlike, priors.lnprior, loglargs=[freqs,flux,error],logpargs=[*args])
+sampler = emcee.PTSampler(5, nwalkers, ndim, lnlike, lnprior, loglargs=[freqs,flux,error])
 sams = sampler.run_mcmc(final_pos, 1000)
