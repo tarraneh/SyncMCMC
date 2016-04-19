@@ -18,14 +18,15 @@ class FluxFrequencyPriors:
 
     ''' Assign priors for the flux normalization factor, self absorption frequency, and characteristic electron frequency.'''
 
-    def __init__(self,flux_prior,va_prior,vm_prior):
+    def __init__(self,flux_prior,va_prior,vm_prior,lnf_prior):
         self.flux_prior = flux_prior
         self.va_prior = va_prior
         self.vm_prior = vm_prior
+        self.lnf_prior = lnf_prior
 
     def lnprior(self, theta):
-        flux, va, vm = theta
-        return self.flux_prior.lnprior(flux) + self.va_prior.lnprior(va) + self.vm_prior.lnprior(vm)
+        flux, va, vm, lnf = theta
+        return self.flux_prior.lnprior(flux) + self.va_prior.lnprior(va) + self.vm_prior.lnprior(vm) + self.lnf_prior.lnprior(lnf)
 
 
 
