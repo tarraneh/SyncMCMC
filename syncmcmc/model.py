@@ -56,7 +56,7 @@ beta_2 = 1./3.
 beta_3 = (1.-p)/2.
 
 
-# Spectra shapes
+# Shape of spectra at each break
 
 s_1 = 1.5
 s_2 = (1.76 + 0.05*p)
