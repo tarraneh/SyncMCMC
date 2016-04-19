@@ -169,9 +169,12 @@ samples = sampler.chain[0,:, 500:, :].reshape((-1, ndim))
 F_mcmc = np.mean(samples[:,0])
 va_mcmc = np.mean(samples[:,1])
 vm_mcmc = np.mean(samples[:,2])
+lnf_mcmc = np.mean(samples[:,3])
 
 
 # Print results
 print "F_v = %s" % F_mcmc
 print "v_a = %s" % va_mcmc
 print "v_m = %s" % vm_mcmc
+
+print "Log Likelihood = %s" %lnlike([F_mcmc,va_mcmc,vm_mcmc,lnf_mcmc], freqs, flux, error)
