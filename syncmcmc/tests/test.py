@@ -31,9 +31,9 @@ class FluxFrequencyPriorsTestCase(unittest.TestCase):
       
 # Test Synchrotron Model
 
-class SynchrotronModelTestCase(unittest.TestCase):
-   def test_syncmcmc_model(self):
-      '''Tests synchrotron model'''
+#class SynchrotronModelTestCase(unittest.TestCase):
+ #  def test_syncmcmc_model(self):
+  #    '''Tests synchrotron model'''
       
 
 
