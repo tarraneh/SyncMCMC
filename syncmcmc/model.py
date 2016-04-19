@@ -8,19 +8,23 @@ import os
 import argparse
 from PTmcmc import run_mcmc
 
-tes = FluxFrequencyPriors(UniformPrior(1.,50.),UniformPrior(1.E10,1.E13),UniformPrior(1.E10,1.E13),UniformPrior(-3., -0.01))
+
 
 """
    Run a Markov-Chain Monte Carlo sampler to determine best fit parameters for a synchrotron model. 
 
 
-   Usage: model.py [options] 
+   Usage: model.py [options] -i filename
 
    Options:
 
-   -i --input        Specify data file
-   -r --raw          Plot raw data
-
+   -i     --input        Specify data file
+   -r     --raw          Plot raw data
+   -fp    --fprior       Speicify lower and upper bounds for prior on flux normalization factor (Default: 1:50)
+   -vap   --vaprior      Specify lower and upper bounds for prior on self absorption frequency (Default 1E9:1E13)
+   -vam   --vamprior     Specify lower and upper bounds for prior on characteristic frequency (Default 1E9:1E13)
+   -lnfp  --lnfprior     Specify lower and upper bounds for prior on fractional amount by which variance is underestimated
+   
    
    Fit produces F_v, v_a, v_m 
    
@@ -74,11 +78,20 @@ s_3 = (0.8 - 0.03*p)
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input', help='Specify input file for retrieving data', dest='data',type=str,default='None',action='store',required=True)
 parser.add_argument('-r', '--raw', help='Plot raw data', dest='raw',default='None',action='store_true',required=False)
-
+parser.add_argument('-fp', '--fprior', help='Define uniform prior bounds for flux normalization, -fp lower upper', dest='fluxprior',default='1. 50.',action='store',required=False)
+parser.add_argument('-vap', '--vaprior', help='Define uniform prior bounds for self absorption frequency, -vap lower upper', dest='vaprior',default='1.E9 1.E13',action='store',required=False)
+parser.add_argument('-vmp', '--vmprior', help='Define uniform prior bounds for characteristic frequency, -vam lower upper', dest='vmprior',default='1.E9 1.E13',action='store',required=False)
+parser.add_argument('-lnfp' '--lnfprior', help='Define uniform prior bounds for fractional amount by which variance is underestimated, -lnfp lower upper', dest='lnfprior',type=str, default='-3.0 -0.01',action='store',required=False)
 args = parser.parse_args()
 
 data_file = args.data
 plot_raw_data = args.raw
+flux_bounds = args.fluxprior
+va_bounds = args.vaprior
+vm_bounds = args.vmprior
+lnf_bounds = args.lnfprior
+
+
 
 # Load data
 
@@ -110,7 +123,6 @@ if plot_raw_data is True:
 
 
 
-
 # Define synchrotron spectrum for model 1 in Granot and Sari
 
 def spectrum(v,F_v,v_a,v_m):
@@ -128,13 +140,13 @@ def lnlike(theta, v, y, yerr):
     return -0.5*(np.sum((y-model)**2*inv_sigma2 - np.log(inv_sigma2)))
 
 
-# Log priors
+# Define priors
 
-def lnprior(theta):
-    F_v,v_a,v_m,lnf = theta
-    if (1. < F_v < 55.) and (10**(8.) < v_a < 10**(13.)) and (10**(9.) < v_m < 10**(13.)) and (-3 < lnf < -0.01):
-        return 0.0
-    return -np.inf
+priors = FluxFrequencyPriors(UniformPrior(flux_bounds.split(' ')[0],flux_bounds.split(' ')[1]),
+          UniformPrior(va_bounds.split(' ')[0],va_bounds.split(' ')[1]),
+          UniformPrior(vm_bounds.split(' ')[0],vm_bounds.split(' ')[1]), 
+          UniformPrior(lnf_bounds.split(' ')[0],lnf_bounds.split(' ')[1]))
+
 
 # Log probability
 
@@ -160,7 +172,7 @@ pos = np.column_stack((frand,varand,vmrand,yerrand))
 pos_add_dim = np.expand_dims(pos,axis=0)
 final_pos = np.repeat(pos_add_dim, 5, axis=0)
 
-sampler = emcee.PTSampler(5, nwalkers, ndim, lnlike, tes.lnprior, loglargs=[freqs,flux,error])
+sampler = emcee.PTSampler(5, nwalkers, ndim, lnlike, priors.lnprior, loglargs=[freqs,flux,error])
 sams = sampler.run_mcmc(final_pos, 1000)
 
 # Burn off initial steps
