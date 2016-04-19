@@ -108,8 +108,10 @@ if plot_raw_data is True:
 
 
 # Define synchrotron spectrum for model 1 in Granot and Sari
+
 def spectrum(v,F_v,v_a,v_m):
     return F_v * (((v/v_a)**(-s_1*beta_1) + (v/v_a)**(-s_1*beta_2))**(-1./s_1)) * ((1 + (v/v_m)**(s_2*(beta_2-beta_3)))**(-1./s_2))
+
 
 
 
