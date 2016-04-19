@@ -11,7 +11,7 @@ from PTmcmc import run_mcmc
 F_true = 10**(0.96)
 va_true = 10**(10.11)
 vm_true = 10**(11.41)
-p = FluxFrequencyPrior(UniformPrior(1,55),UniformPrior(1E9,1E13),UniformPrior(1E9,1E13)
+priors = FluxFrequencyPrior(UniformPrior(1,55),UniformPrior(1E9,1E13),UniformPrior(1E9,1E13)
 
 
 
@@ -145,5 +145,5 @@ pos = np.column_stack((frand,varand,vmrand,yerrand))
 pos_add_dim = np.expand_dims(pos,axis=0)
 final_pos = np.repeat(pos_add_dim, 5, axis=0)
 
-sampler = emcee.PTSampler(5, nwalkers, ndim, lnlike, p.lnprior, loglargs=[v3,flux3,err3])
+sampler = emcee.PTSampler(5, nwalkers, ndim, lnlike, priors.lnprior, loglargs=[v3,flux3,err3])
 sams = sampler.run_mcmc(final_pos, 1000)
