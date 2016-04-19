@@ -4,10 +4,10 @@ import unittest
 import syncmcmc
 from priorclasses import UniformPrior
 
-class TestFillerFunc(TestCase):
-    def test_is_string(self):
-        s = syncmcmc.fillerfunc()
-        self.assertTrue(isinstance(s, str))
+#class TestFillerFunc(TestCase):
+ #   def test_is_string(self):
+  #      s = syncmcmc.fillerfunc()
+   #     self.assertTrue(isinstance(s, str))
 
 class UniformPriorTestCase(unittest.TestCase):
    def test_UniformPriors(self):
