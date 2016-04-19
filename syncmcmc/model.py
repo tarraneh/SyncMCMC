@@ -11,6 +11,7 @@ from PTmcmc import run_mcmc
 F_true = 10**(0.96)
 va_true = 10**(10.11)
 vm_true = 10**(11.41)
+p = FluxFrequencyPrior(UniformPrior(1,55),UniformPrior(1E9,1E13),UniformPrior(1E9,1E13)
 
 
 
