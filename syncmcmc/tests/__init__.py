@@ -1,3 +1,3 @@
 
 import syncmcmc
-import data_class
+import priorclasses
