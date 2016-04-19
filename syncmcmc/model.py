@@ -8,7 +8,7 @@ import os
 import argparse
 from PTmcmc import run_mcmc
 
-
+p = FluxFrequencyPriors(UniformPrior(1.,50.),UniformPrior(1.E10,1.E13),UniformPrior(1.E10,1.E13))
 
 """
    Run a Markov-Chain Monte Carlo sampler to determine best fit parameters for a synchrotron model. 
@@ -160,7 +160,7 @@ pos = np.column_stack((frand,varand,vmrand,yerrand))
 pos_add_dim = np.expand_dims(pos,axis=0)
 final_pos = np.repeat(pos_add_dim, 5, axis=0)
 
-sampler = emcee.PTSampler(5, nwalkers, ndim, lnlike, lnprior, loglargs=[freqs,flux,error])
+sampler = emcee.PTSampler(5, nwalkers, ndim, lnlike, p.lnprior, loglargs=[freqs,flux,error])
 sams = sampler.run_mcmc(final_pos, 1000)
 
 # Burn off initial steps
