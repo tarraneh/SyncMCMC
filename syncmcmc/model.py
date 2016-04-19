@@ -116,10 +116,10 @@ def spectrum(v,F_v,v_a,v_m):
 # Log likelihood function
 
 def lnlike(theta, v, y, yerr):
-    F_v,v_a,v_m = theta
+    F_v,v_a,v_m,lnf = theta
     model = spectrum(v,F_v,v_a,v_m)
-    inv_sigma2 = 1.0 / (yerr**2)
-    return -0.5*(np.sum((y - model)**2 * inv_sigma2 - np.log(inv_sigma2)))
+    inv_sigma2 = 1.0 / (yerr**2 + model**2 * np.exp(2*lnf))
+    return -0.5*(np.sum((y-model)**2*inv_sigma2 - np.log(inv_sigma2)))
 
 
 # Log priors
