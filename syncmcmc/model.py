@@ -122,3 +122,5 @@ def lnprob(theta, v, y, yerr, prior):
     if not np.isfinite(lp):
         return -np.inf
     return lp + lnlike(theta, v, y, yerr)
+    
+run_mcmc()
