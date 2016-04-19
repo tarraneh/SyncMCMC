@@ -181,7 +181,7 @@ print "Log Likelihood = %s" %lnlike([F_mcmc,va_mcmc,vm_mcmc,lnf_mcmc], freqs, fl
 
 v_range = np.linspace(1E9,350E9,1E4)
 plt.scatter(freqs,flux)
-plt.plot(v_range,spectrum(v_range,F_mcmc,va_mcmc,vm_mcmc)
+plt.plot(v_range,spectrum(v_range,F_mcmc,va_mcmc,vm_mcmc))
 plt.xscale('log')
 plt.yscale('log')
 plt.show()
