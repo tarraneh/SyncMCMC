@@ -1,3 +1,4 @@
+from priorclasses import FluxFrequencyPriors, UniformPrior
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
@@ -5,7 +6,7 @@ import emcee
 import corner
 import os
 import argparse
-from priorclasses import FluxFrequencyPriors, UniformPrior
+import PTmcmc
 
 
 
