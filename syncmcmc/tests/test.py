@@ -5,13 +5,13 @@ import syncmcmc
 from priorclasses import UniformPrior
 
 
-class UniformPriorTestCase(unittest.TestCase):
-   def test_UniformPriors(self):
-        """Tests UniformPrior class"""
-        # Define a uniform prior between 1 and 10
-        test_uniform_priors = UniformPrior(1,10)
-        # Is 5 contained within the prior bounds?
-        self.assertFalse(test_uniform_priors.lnprior(5))
+#class UniformPriorTestCase(unittest.TestCase):
+ #  def test_UniformPriors(self):
+  #      """Tests UniformPrior class"""
+   #     # Define a uniform prior between 1 and 10
+    #    test_uniform_priors = UniformPrior(1,10)
+     #   # Is 5 contained within the prior bounds?
+      #  self.assertFalse(test_uniform_priors.lnprior(5))
      
         
 class FluxFrequencyPriorsTestCase(unittest.TestCase):
