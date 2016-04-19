@@ -1,13 +1,25 @@
-
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import emcee
 import corner
+import os
+import argparse
+from priorclasses import FluxFrequencyPriors, UniformPrior
+
 
 
 """
    Run a Markov-Chain Monte Carlo sampler to determine best fit parameters for a synchrotron model. 
+
+
+   Usage: model.py [options] 
+
+   Options:
+
+   -i --input        Specify data file
+   -r --raw          Plot raw data
+
    
    Fit produces F_v, v_a, v_m 
    
@@ -30,99 +42,82 @@ import corner
    s_3               ::  Shape of spectrum at break 3
 """
 
-
 # Define known parameters
 
 p = 2.5
 epsilon_e = 0.1 * (p-2.)/(p-1.)
 epsilon_b = 0.1
 
+
+# Spectral slopes
+
 beta_1 = 2.
 beta_2 = 1./3.
 beta_3 = (1.-p)/2.
-beta5_1 = 5.0/2.0
-beta5_2 = (1.0 - p)/2.0
+
+
+# Spectra shapes
 
 s_1 = 1.5
 s_2 = (1.76 + 0.05*p)
 s_3 = (0.8 - 0.03*p)
-# k = 2 (wind model)
-s_4 = 3.63 * p - 1.60
-s_5 = 1.25 - 0.18 * p
 
 
-#### Synchrotron Models ####
+# Read in and process command line options
 
-# Define synchrotron spectrum for model 1
+parser = argparse.ArgumentParser()
+parser.add_argument('-i', '--input', help='Specify input file for retrieving data', dest='data',type=str,default='None',action='store',required=True)
+parser.add_argument('-r', '--raw', help='Plot raw data', dest='raw',default='None',action='store_true',required=False)
+args = parser.parse_args()
+
+data_file = args.data
+plot_raw_data = args.raw
+
+# Load data
+
+flux = []
+freqs = []
+error = []
+for line in open(data_file):
+   lines = line.strip()
+   if not line.startswith("#"):
+      columns = line.split()
+      freqs.append(columns[0])
+      flux.append(columns[1])
+      error.append(columns[2].rstrip('\n'))
+
+
+# Plot raw data if argument -r passed
+
+if plot_raw_data is True:
+   plt.figure()
+   plt.scatter(freqs,flux)
+   plt.xscale('log')
+   plt.yscale('log')
+   plt.show()
+
+
+
+
+# Define synchrotron spectrum for model 1 in Granot and Sari
 def spectrum(v,F_v,v_a,v_m):
     return F_v * (((v/v_a)**(-s_1*beta_1) + (v/v_a)**(-s_1*beta_2))**(-1./s_1)) * ((1 + (v/v_m)**(s_2*(beta_2-beta_3)))**(-1./s_2))
 
-# Define synchrotron spectrum for model 2
-def spectrum_2(v,F_4,v_a_2,v_m_2):
-    phi = (v/v_m_2)
-    return F_4 * (((phi)**(2.)) * np.exp(- s_4 * phi**(2./3.)) + phi**(5./2.) ) * ((1 + (v/v_a_2)**(s_5*(beta5_1-beta5_2)))**(-1./s_5))
-    
-    
- 
- 
-#### Likelihood Functions and Priors ####
+
 
 # Log likelihood function
 
 def lnlike(theta, v, y, yerr):
-    F_v,v_a,v_m,lnf = theta
+    F_v,v_a,v_m = theta
     model = spectrum(v,F_v,v_a,v_m)
-    inv_sigma2 = 1.0 / (yerr**2 + model**2 * np.exp(2*lnf))
-    return -0.5*(np.sum((y-model)**2*inv_sigma2 - np.log(inv_sigma2)))
-
-# Log priors
-
-def lnprior(theta):
-    F_v,v_a,v_m,lnf = theta
-    if (1. < F_v < 55.) and (10**(8.) < v_a < 10**(11.)) and (10**(9.) < v_m < 10**(13.)) and (-3 < lnf < -0.01):
-    #if (10 < F_v < 70.) and (10**(8.) < v_a < 10**(11.)) and (10**(8.) < v_m < 10**(11.)):    
-        return 0.0
-    return -np.inf
+    inv_sigma2 = 1.0 / (yerr**2)
+    return -0.5*(np.sum((y - model)**2 * inv_sigma2 - np.log(inv_sigma2)))
 
 
 # Log probability
 
-def lnprob(theta, v, y, yerr):
-    lp = lnprior(theta)
+def lnprob(theta, v, y, yerr, prior):
+    lp = prior.lnprior(theta)
     if not np.isfinite(lp):
         return -np.inf
     return lp + lnlike(theta, v, y, yerr)
-    
-    
-#### Sample the probability distribution ####
-
-# Define number of dimensions and number of walkers
-
-ndim, nwalkers = 4, 100
-
-
-# Define initial positions of walkers in phase space
-
-frand = np.random.normal(loc=F_true,size=nwalkers,scale=0.1)
-varand = np.random.normal(loc=va_true,size=nwalkers,scale=1.E3)
-vmrand = np.random.normal(loc=vm_true,size=nwalkers,scale=1.E3)
-yerrand = np.random.normal(loc=-0.7,size=nwalkers,scale=0.1)
-
-pos = np.column_stack((frand,varand,vmrand,yerrand)) 
-
-
-# Run MCMC sampler
-
-sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=(v3, flux3, err3))
-sams = sampler.run_mcmc(pos, 1000)
-
-# Burn off initial steps
-samples = sampler.chain[:, 500:, :].reshape((-1, ndim))
-
-samples[:, 2] = np.exp(samples[:, 2])
-F_mcmc, va_mcmc, vm_mcmc, f_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),zip(*np.percentile(samples, [16, 50, 84],axis=0)))
-
-
-print F_mcmc
-print va_mcmc
-print vm_mcmc
