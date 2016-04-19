@@ -2,6 +2,7 @@
 from unittest import TestCase
 import unittest
 import syncmcmc
+from data_class import UniformPrior
 
 class TestFillerFunc(TestCase):
     def test_is_string(self):
