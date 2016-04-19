@@ -9,6 +9,10 @@ import argparse
 from PTmcmc import run_mcmc
 
 
+F_true = 10**(0.96)
+va_true = 10**(10.11)
+vm_true = 10**(11.41)
+
 
 """
    Run a Markov-Chain Monte Carlo sampler to determine best fit parameters for a synchrotron model. 
