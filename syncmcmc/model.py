@@ -16,6 +16,8 @@ from PTmcmc import run_mcmc
 
    Usage: model.py [options] -i filename
 
+   Outputs best fit parameters for F_v, v_a, and v_m and a plot of the fit.
+
    Options:
 
    -i     --input        Specify data file
@@ -24,7 +26,9 @@ from PTmcmc import run_mcmc
    -vap   --vaprior      Specify lower and upper bounds for prior on self absorption frequency (Default 1E9:1E13)
    -vam   --vamprior     Specify lower and upper bounds for prior on characteristic frequency (Default 1E9:1E13)
    -lnfp  --lnfprior     Specify lower and upper bounds for prior on fractional amount by which variance is underestimated
-   
+   -t     --trace        Plot MCMC traces for F_v, v_a, v_m
+   -c     --corner       Plot corner plots
+
    
    Fit produces F_v, v_a, v_m 
    
@@ -48,9 +52,10 @@ from PTmcmc import run_mcmc
 """
 
 
-F_true = 10**(0.96)
-va_true = 10**(10.11)
-vm_true = 10**(11.41)
+F_true = 10**(1.58)
+va_true = 10**(9.97)
+vm_true = 10**(10.26)
+
 
 # Define known parameters
 
@@ -79,9 +84,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input', help='Specify input file for retrieving data', dest='data',type=str,default='None',action='store',required=True)
 parser.add_argument('-r', '--raw', help='Plot raw data', dest='raw',default='None',action='store_true',required=False)
 parser.add_argument('-fp', '--fprior', help='Define uniform prior bounds for flux normalization, -fp lower upper', dest='fluxprior',default='1. 50.',action='store',required=False)
-parser.add_argument('-vap', '--vaprior', help='Define uniform prior bounds for self absorption frequency, -vap lower upper', dest='vaprior',default='1.E9 1.E13',action='store',required=False)
-parser.add_argument('-vmp', '--vmprior', help='Define uniform prior bounds for characteristic frequency, -vam lower upper', dest='vmprior',default='1.E9 1.E13',action='store',required=False)
+parser.add_argument('-vap', '--vaprior', help='Define uniform prior bounds for self absorption frequency, -vap lower upper', dest='vaprior',default='10**8. 10**13.',action='store',required=False)
+parser.add_argument('-vmp', '--vmprior', help='Define uniform prior bounds for characteristic frequency, -vam lower upper', dest='vmprior',default='10**8. 10**13.',action='store',required=False)
 parser.add_argument('-lnfp' '--lnfprior', help='Define uniform prior bounds for fractional amount by which variance is underestimated, -lnfp lower upper', dest='lnfprior',type=str, default='-3.0 -0.01',action='store',required=False)
+parser.add_argument('-c', '--corner', help='Plot corner plots', dest='corner',default='None',action='store_true',required=False)
+parser.add_argument('-t', '--trace', help='Plot MCMC traces', dest='traces',default='None',action='store_true',required=False)
+
 args = parser.parse_args()
 
 data_file = args.data
@@ -90,6 +98,8 @@ flux_bounds = args.fluxprior
 va_bounds = args.vaprior
 vm_bounds = args.vmprior
 lnf_bounds = args.lnfprior
+plot_corner = args.corner
+plot_traces = args.traces
 
 
 
@@ -148,13 +158,6 @@ priors = FluxFrequencyPriors(UniformPrior(flux_bounds.split(' ')[0],flux_bounds.
           UniformPrior(lnf_bounds.split(' ')[0],lnf_bounds.split(' ')[1]))
 
 
-# Log probability
-
-def lnprob(theta, v, y, yerr):
-    lp = lnprior(theta)
-    if not np.isfinite(lp):
-        return -np.inf
-    return lp + lnlike(theta, v, y, yerr)
     
 # Define number of dimensions and number of walkers
 
@@ -178,6 +181,37 @@ sams = sampler.run_mcmc(final_pos, 1000)
 # Burn off initial steps
 samples = sampler.chain[0,:, 500:, :].reshape((-1, ndim))
 
+
+
+# Plot corner plots if argument -c is passed
+
+if plot_corner is True:
+    fig = corner.corner(samples, labels=["$F_v$", "$v_a$", "$v_m$", "lnf"],truths=[F_true,va_true,vm_true, np.log(0.1)])
+
+
+# Plot traces if argument -t is passed
+
+if plot_traces is True:
+    plt.subplot(3,1,1)
+    plt.plot(sampler.chain[0, :, :, 0].T,color="k", alpha=0.3)
+    plt.axhline(F_true, color='#4682b4')
+    plt.ylabel('F_v')
+    plt.xlabel('Number of Steps')
+    
+    plt.subplot(3,1,2)
+    plt.plot(sampler.chain[0,:, :, 1].T, color="k", alpha=0.3)
+    plt.axhline(va_true, color='#4682b4')
+    plt.ylabel('v_a')
+    plt.xlabel('Number of Steps')
+    
+    plt.subplot(3,1,3)
+    plt.plot(sampler.chain[0,:, :, 2].T, color="k", alpha=0.3)
+    plt.axhline(vm_true, color='#4682b4')
+    plt.ylabel('v_m')
+    plt.xlabel('Number of Steps')
+    
+    
+
 F_mcmc = np.mean(samples[:,0])
 va_mcmc = np.mean(samples[:,1])
 vm_mcmc = np.mean(samples[:,2])
@@ -192,6 +226,7 @@ print "v_m = %s" % vm_mcmc
 print "Log Likelihood = %s" %lnlike([F_mcmc,va_mcmc,vm_mcmc,lnf_mcmc], freqs, flux, error)
 
 v_range = np.linspace(1E9,350E9,1E4)
+plt.figure()
 plt.scatter(freqs,flux)
 plt.plot(v_range,spectrum(v_range,F_mcmc,va_mcmc,vm_mcmc))
 plt.xscale('log')
