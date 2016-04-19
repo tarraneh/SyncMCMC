@@ -6,7 +6,7 @@ import emcee
 import corner
 import os
 import argparse
-import PTmcmc
+from PTmcmc import run_mcmc
 
 
 
