@@ -9,9 +9,7 @@ import argparse
 from PTmcmc import run_mcmc
 
 
-F_true = 10**(0.96)
-va_true = 10**(10.11)
-vm_true = 10**(11.41)
+
 
 
 """
@@ -73,6 +71,7 @@ s_3 = (0.8 - 0.03*p)
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input', help='Specify input file for retrieving data', dest='data',type=str,default='None',action='store',required=True)
 parser.add_argument('-r', '--raw', help='Plot raw data', dest='raw',default='None',action='store_true',required=False)
+
 args = parser.parse_args()
 
 data_file = args.data
