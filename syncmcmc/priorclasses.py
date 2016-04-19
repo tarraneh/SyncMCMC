@@ -23,7 +23,8 @@ class FluxFrequencyPriors:
         self.va_prior = va_prior
         self.vm_prior = vm_prior
 
-    def lnprior(self, flux, va, vm):
+    def lnprior(self, theta):
+        flux, va, vm = theta
         return self.flux_prior.lnprior(flux) + self.va_prior.lnprior(va) + self.vm_prior.lnprior(vm)
 
 
