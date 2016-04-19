@@ -4,6 +4,7 @@ import unittest
 import syncmcmc
 from priorclasses import UniformPrior
 from priorclasses import FluxFrequencyPriors
+from model import lnlike,lnprop
 
 
 # Test UniformPrior Class
@@ -26,6 +27,14 @@ class FluxFrequencyPriorsTestCase(unittest.TestCase):
       test_all_priors = FluxFrequencyPriors(UniformPrior(1.,50.),UniformPrior(1.E10,1.E13),UniformPrior(1.E10,1.E13))
       # Check if the following values are contained with prior bounds. If so, return 0
       self.assertFalse(test_all_priors.lnprior(10.,1.E11,1.E12))
+      
+      
+# Test Synchrotron Model
+
+class SynchrotronModelTestCase(unittest.TestCase):
+   def test_syncmcmc_model(self):
+      '''Tests synchrotron model'''
+      
 
 
 if __name__ == '__main__':
