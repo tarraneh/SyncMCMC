@@ -18,7 +18,7 @@ class FluxFrequencyPriorsTestCase(unittest.TestCase):
    def test_FluxFrequencyPriors(self):
       '''Tests FluxFrequencyPriors class'''
       test_all_priors = FluxFrequencyPriors(UniformPrior(1.,50.),UniformPrior(1.E10,1.E13),UniformPrior(1.E10,1.E13))
-      self.assertFalse(test_all_priors.lnprior(10.,1.E11.,1.E12.))
+      self.assertFalse(test_all_priors.lnprior(10.,1.E11,1.E12))
 
 
 if __name__ == '__main__':
