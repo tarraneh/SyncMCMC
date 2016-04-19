@@ -12,7 +12,7 @@ F_true = 10**(0.96)
 va_true = 10**(10.11)
 vm_true = 10**(11.41)
 
-priors = FluxFrequencyPriors(UniformPrior(1,55),UniformPrior(1E9,1E13),UniformPrior(1E9,1E13))
+#priors = FluxFrequencyPriors(UniformPrior(1,55),UniformPrior(1E9,1E13),UniformPrior(1E9,1E13))
 
 
 
@@ -127,14 +127,13 @@ def lnlike(theta, v, y, yerr):
 def lnprior(theta):
     F_v,v_a,v_m,lnf = theta
     if (1. < F_v < 55.) and (10**(8.) < v_a < 10**(13.)) and (10**(9.) < v_m < 10**(13.)) and (-3 < lnf < -0.01):
-
         return 0.0
     return -np.inf
 
 # Log probability
 
-def lnprob(theta, v, y, yerr, prior):
-    lp = prior.lnprior(theta)
+def lnprob(theta, v, y, yerr):
+    lp = lnprior(theta)
     if not np.isfinite(lp):
         return -np.inf
     return lp + lnlike(theta, v, y, yerr)
