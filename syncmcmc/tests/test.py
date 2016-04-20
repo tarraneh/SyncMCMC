@@ -1,26 +1,24 @@
-
 from unittest import TestCase
-import unittest
 import syncmcmc
-from priorclasses import UniformPrior
-from priorclasses import FluxFrequencyPriors
-from model import lnlike,lnprop
+# Need to have ..priorclasses to tell it to look in parent directory
+from ..priorclasses import UniformPrior
+from ..priorclasses import FluxFrequencyPriors
+from ..model import lnlike, lnprop
 
 
 # Test UniformPrior Class
 
-class UniformPriorTestCase(unittest.TestCase): 
+class UniformPriorTestCase(TestCase):
    def test_UniformPriors(self):
       """Tests UniformPrior class"""
       # Define a uniform prior between 1 and 10
       test_uniform_priors = UniformPrior(1,10)
       # Is 5 contained within the prior bounds? If so, return 0
       self.assertFalse(test_uniform_priors.lnprior(5))
-  
-  
+
 # Test FluxFrequencyPriors Class
-        
-class FluxFrequencyPriorsTestCase(unittest.TestCase):
+
+class FluxFrequencyPriorsTestCase(TestCase):
    def test_FluxFrequencyPriors(self):
       '''Tests FluxFrequencyPriors class'''
       # Define uniform priors for flux, self absorption frequency, and characteristic frequency
