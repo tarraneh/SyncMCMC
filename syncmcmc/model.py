@@ -10,8 +10,6 @@ from PTmcmc import run_mcmc
 sns.set_style("white")
 
 
-
-
 """
    Run a Markov-Chain Monte Carlo sampler to determine best fit parameters for a synchrotron model. 
 
@@ -207,28 +205,6 @@ def lnprior(theta):
 
 
 
-# Log probability
-
-def lnprob(theta, v, y, yerr):
-    lp = lnprior(theta)
-    if not np.isfinite(lp):
-        return -np.inf
-    return lp + lnlike(theta, v, y, yerr)
-
-def lnprob_spec2(theta, v, y, yerr):
-    lp = lnprior(theta)
-    if not np.isfinite(lp):
-        return -np.inf
-    return lp + lnlike_spec2(theta, v, y, yerr)
-
-
-def lnprob_spec3(theta, v, y, yerr):
-    lp = lnprior(theta)
-    if not np.isfinite(lp):
-        return -np.inf
-    return lp + lnlike_spec3(theta, v, y, yerr)
-
-
 
 # Define number of dimensions and number of walkers
 
@@ -243,26 +219,27 @@ vmrand = np.random.normal(loc=vm_true,size=nwalkers,scale=1.E3)
 yerrand = np.random.normal(loc=-0.7,size=nwalkers,scale=0.1)
 
 pos = np.column_stack((frand,varand,vmrand,yerrand)) 
-
+pos_add_dim = np.expand_dims(pos,axis=0)
+final_pos = np.repeat(pos_add_dim, 5, axis=0)
 
 # Run MCMC sampler
 
-sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=(freqs, flux, error))
-sams = sampler.run_mcmc(pos, 1000)
+sampler = emcee.PTSampler(5, nwalkers, ndim, lnlike, lnprior, loglargs=[freqs,flux,error])
+sams = sampler.run_mcmc(final_pos, 1000)
 
 
-sampler_spec2 = emcee.EnsembleSampler(nwalkers, ndim, lnprob_spec2, args=(freqs, flux, error))
-sams_spec2 = sampler_spec2.run_mcmc(pos, 1000)
+sampler_spec2 = emcee.PTSampler(5, nwalkers, ndim, lnlike_spec2, lnprior, loglargs=[freqs,flux,error])
+sams_spec2 = sampler_spec2.run_mcmc(final_pos, 1000)
 
-sampler_spec3 = emcee.EnsembleSampler(nwalkers, ndim, lnprob_spec3, args=(freqs, flux, error))
-sams_spec3 = sampler_spec3.run_mcmc(pos, 1000)
+sampler_spec3 = emcee.PTSampler(5, nwalkers, ndim, lnlike_spec3, lnprior, loglargs=[freqs,flux,error])
+sams_spec3 = sampler_spec3.run_mcmc(final_pos, 1000)
 
 # Burn off initial steps
-samples = sampler.chain[:, 500:, :].reshape((-1, ndim))
+samples = sampler.chain[0,:, 500:, :].reshape((-1, ndim))
 
-samples_spec2 = sampler_spec2.chain[:, 500:, :].reshape((-1, ndim))
+samples_spec2 = sampler_spec2.chain[0,:, 500:, :].reshape((-1, ndim))
 
-samples_spec3 = sampler_spec3.chain[:, 500:, :].reshape((-1, ndim))
+samples_spec3 = sampler_spec3.chain[0,:, 500:, :].reshape((-1, ndim))
 
 F_mcmc = np.mean(samples[:,0])
 va_mcmc = np.mean(samples[:,1])
