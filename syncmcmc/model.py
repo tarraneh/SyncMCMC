@@ -110,9 +110,9 @@ vm_bounds = args.vmprior
 lnf_bounds = args.lnfprior
 plot_corner = args.corner
 plot_traces = args.traces
-F_true = args.F_true
-va_true = args.va_true
-vm_true = args.vm_true
+F_true = (args.F_true)
+va_true = (args.va_true)
+vm_true = (args.vm_true)
 
 
 ## Load data ##
@@ -195,16 +195,16 @@ def lnlike_spec3(theta, v, y, yerr):
 
 
 
-# Log priors
 
-def lnprior(theta):
-    F_v,v_a,v_m,lnf = theta
-    if (1. < F_v < 55.) and (10**(8.) < v_a < 10**(13.)) and (10**(8.) < v_m < 10**(13.)) and (-3 < lnf < -0.01): 
-        return 0.0
-    return -np.inf
+# Define priors
+
+priors = FluxFrequencyPriors(UniformPrior(float(flux_bounds.split(' ')[0]),float(flux_bounds.split(' ')[1])),
+          UniformPrior(float(va_bounds.split(' ')[0]),float(va_bounds.split(' ')[1])),
+          UniformPrior(float(vm_bounds.split(' ')[0]),float(vm_bounds.split(' ')[1])), 
+          UniformPrior(float(lnf_bounds.split(' ')[0]),float(lnf_bounds.split(' ')[1])))
 
 
-
+print priors.lnprior([F_true,va_true,vm_true,-2.])
 
 # Define number of dimensions and number of walkers
 
@@ -224,14 +224,14 @@ final_pos = np.repeat(pos_add_dim, 5, axis=0)
 
 # Run MCMC sampler
 
-sampler = emcee.PTSampler(5, nwalkers, ndim, lnlike, lnprior, loglargs=[freqs,flux,error])
+sampler = emcee.PTSampler(5, nwalkers, ndim, lnlike, priors.lnprior, loglargs=[freqs,flux,error])
 sams = sampler.run_mcmc(final_pos, 1000)
 
 
-sampler_spec2 = emcee.PTSampler(5, nwalkers, ndim, lnlike_spec2, lnprior, loglargs=[freqs,flux,error])
+sampler_spec2 = emcee.PTSampler(5, nwalkers, ndim, lnlike_spec2, priors.lnprior, loglargs=[freqs,flux,error])
 sams_spec2 = sampler_spec2.run_mcmc(final_pos, 1000)
 
-sampler_spec3 = emcee.PTSampler(5, nwalkers, ndim, lnlike_spec3, lnprior, loglargs=[freqs,flux,error])
+sampler_spec3 = emcee.PTSampler(5, nwalkers, ndim, lnlike_spec3, priors.lnprior, loglargs=[freqs,flux,error])
 sams_spec3 = sampler_spec3.run_mcmc(final_pos, 1000)
 
 # Burn off initial steps
@@ -266,31 +266,35 @@ if plot_corner is True:
 
 # Plot traces if argument -t is passed
 
+# Plot traces if argument -t is passed
+
 if plot_traces is True:
     plt.subplot(3,1,1)
-    plt.plot(sampler.chain[:, :, 0].T,color="k", alpha=0.3)
+    plt.plot(sampler.chain[0, :, :, 0].T,color="k", alpha=0.3)
     plt.axhline(F_true, color='#4682b4')
     plt.ylabel('F_v')
     plt.xlabel('Number of Steps')
     
     plt.subplot(3,1,2)
-    plt.plot(sampler.chain[:, :, 1].T, color="k", alpha=0.3)
+    plt.plot(sampler.chain[0,:, :, 1].T, color="k", alpha=0.3)
     plt.axhline(va_true, color='#4682b4')
     plt.ylabel('v_a')
     plt.xlabel('Number of Steps')
     
     plt.subplot(3,1,3)
-    plt.plot(sampler.chain[:, :, 2].T, color="k", alpha=0.3)
+    plt.plot(sampler.chain[0,:, :, 2].T, color="k", alpha=0.3)
     plt.axhline(vm_true, color='#4682b4')
     plt.ylabel('v_m')
     plt.xlabel('Number of Steps')
 
 
+# Print parameters which maximize lnprob
+
+maxprobs = sampler.chain[0,...][np.where(sampler.lnprobability[0,...] == sampler.lnprobability[0,...].max())].mean(axis=0)
+
 
 # Print results
-print "F_v = %s" % F_mcmc
-print "v_a = %s" % va_mcmc
-print "v_m = %s" % vm_mcmc
+F_mcmc, va_mcmc, vm_mcmc, lnf_mcmc = maxprobs
 
 print "Log Likelihood = %s" %lnlike([F_mcmc,va_mcmc,vm_mcmc,lnf_mcmc], freqs, flux, error)
 

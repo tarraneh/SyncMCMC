@@ -7,8 +7,7 @@ import corner
 import os
 import argparse
 from PTmcmc import run_mcmc
-
-
+sns.set_style("white")
 
 """
    Run a Markov-Chain Monte Carlo sampler to determine best fit parameters for a synchrotron model. 
@@ -28,6 +27,9 @@ from PTmcmc import run_mcmc
    -lnfp  --lnfprior     Specify lower and upper bounds for prior on fractional amount by which variance is underestimated
    -t     --trace        Plot MCMC traces for F_v, v_a, v_m
    -c     --corner       Plot corner plots
+   -F     --F_true       Specify true value for F_v
+   -vat   --va_true      Specify true value for va
+   -vmt   --vm_true      Specify true value for vm 
 
    
    Fit produces F_v, v_a, v_m 
@@ -52,10 +54,6 @@ from PTmcmc import run_mcmc
 """
 
 
-F_true = 10**(1.58)
-va_true = 10**(9.97)
-vm_true = 10**(10.26)
-
 
 # Define known parameters
 
@@ -69,13 +67,18 @@ epsilon_b = 0.1
 beta_1 = 2.
 beta_2 = 1./3.
 beta_3 = (1.-p)/2.
+beta5_1 = 5.0/2.0
+beta5_2 = (1.0 - p)/2.0
 
 
-# Shape of spectra at each break
+
+# Shape of spectrum at each break
 
 s_1 = 1.5
 s_2 = (1.76 + 0.05*p)
 s_3 = (0.8 - 0.03*p)
+s_4 = 3.63 * p - 1.60
+s_5 = 1.25 - 0.18 * p
 
 
 # Read in and process command line options
@@ -83,12 +86,16 @@ s_3 = (0.8 - 0.03*p)
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input', help='Specify input file for retrieving data', dest='data',type=str,default='None',action='store',required=True)
 parser.add_argument('-r', '--raw', help='Plot raw data', dest='raw',default='None',action='store_true',required=False)
-parser.add_argument('-fp', '--fprior', help='Define uniform prior bounds for flux normalization, -fp lower upper', dest='fluxprior',default='20. 50.',action='store',required=False)
+parser.add_argument('-fp', '--fprior', help='Define uniform prior bounds for flux normalization, -fp lower upper', dest='fluxprior',default='1. 55.',action='store',required=False)
 parser.add_argument('-vap', '--vaprior', help='Define uniform prior bounds for self absorption frequency, -vap lower upper', dest='vaprior',default='1E8 1E13',action='store',required=False)
 parser.add_argument('-vmp', '--vmprior', help='Define uniform prior bounds for characteristic frequency, -vam lower upper', dest='vmprior',default='1E8 1E13',action='store',required=False)
-parser.add_argument('-lnfp' '--lnfprior', help='Define uniform prior bounds for fractional amount by which variance is underestimated, -lnfp lower upper', dest='lnfprior',type=str, default='-3.8 -0.1',action='store',required=False)
+parser.add_argument('-lnfp' '--lnfprior', help='Define uniform prior bounds for fractional amount by which variance is underestimated, -lnfp lower upper', dest='lnfprior',type=str, default='-3. -0.01',action='store',required=False)
 parser.add_argument('-c', '--corner', help='Plot corner plots', dest='corner',default='None',action='store_true',required=False)
 parser.add_argument('-t', '--trace', help='Plot MCMC traces', dest='traces',default='None',action='store_true',required=False)
+parser.add_argument('-Ft', '--F_true', help='Specify true value for F_v', type=str,dest='F_true',action='store',required=True)
+parser.add_argument('-vat', '--va_true', help='Specify true value for v_a', type=str,dest='va_true',action='store',required=True)
+parser.add_argument('-vmt', '--vm_true', help='Specify true value for v_m', type=str,dest='vm_true',action='store',required=True)
+
 
 args = parser.parse_args()
 
@@ -100,6 +107,10 @@ vm_bounds = args.vmprior
 lnf_bounds = args.lnfprior
 plot_corner = args.corner
 plot_traces = args.traces
+F_true = (args.F_true)
+va_true = (args.va_true)
+vm_true = (args.vm_true)
+
 
 
 # Load data
@@ -138,6 +149,26 @@ def spectrum(v,F_v,v_a,v_m):
     return F_v * (((v/v_a)**(-s_1*beta_1) + (v/v_a)**(-s_1*beta_2))**(-1./s_1)) * ((1 + (v/v_m)**(s_2*(beta_2-beta_3)))**(-1./s_2))
 
 
+## Define synchrotron spectrum for model 2 in Granot and Sari
+
+def spectrum_2(v,F_v,v_a,v_m):
+    phi = (v/v_m)
+    return F_v * (((phi)**(2.)) * np.exp(- s_4 * phi**(2./3.)) + phi**(5./2.) ) * ((1 + (v/v_a)**(s_5*(beta5_1-beta5_2)))**(-1./s_5))
+
+## Define weighted synchrotron spectrum with flux normalization factors equal
+
+def weighted_spectrum(v,F_v,v_a,v_m):
+    phi = (v/v_m)
+    return ((v_m/v_a)**2. * (F_v * (((v/v_a)**(-s_1*beta_1) + (v/v_a)**(-s_1*beta_2))**(-1./s_1)) * ((1 + (v/v_m)**(s_2*(beta_2-beta_3)))**(-1./s_2))) + (v_a/v_m)**2. * F_v * ((((phi)**(2.)) * np.exp(- s_4 * phi**(2./3.)) + phi**(5./2.) ) * ((1 + (v/v_a)**(s_5*(beta5_1-beta5_2)))**(-1./s_5))))/((v_a/v_m)**2. + (v_m/v_a)**2.)
+
+## Define weighted synchrortron spectrum with unique flux normalization factors
+
+def comb_spectrum(v,F_v,F_2,v_a,v_m):
+    phi = (v/v_m)
+    return ((v_m/v_a)**2. * (F_v * (((v/v_a)**(-s_1*beta_1) + (v/v_a)**(-s_1*beta_2))**(-1./s_1)) * ((1 + (v/v_m)**(s_2*(beta_2-beta_3)))**(-1./s_2))) + (v_a/v_m)**2. * F_2 * ((((phi)**(2.)) * np.exp(- s_4 * phi**(2./3.)) + phi**(5./2.) ) * ((1 + (v/v_a)**(s_5*(beta5_1-beta5_2)))**(-1./s_5))))/((v_a/v_m)**2. + (v_m/v_a)**2.)
+
+
+
 
 
 # Log likelihood function
@@ -149,16 +180,30 @@ def lnlike(theta, v, y, yerr):
     return -0.5*(np.sum((y-model)**2*inv_sigma2 - np.log(inv_sigma2)))
 
 
+def lnlike_spec2(theta, v, y, yerr):
+    F_v,v_a,v_m,lnf = theta
+    model = spectrum_2(v,F_v,v_a,v_m)
+    inv_sigma2 = 1.0 / (yerr**2 + model**2 * np.exp(2*lnf))
+    return -0.5*(np.sum((y-model)**2*inv_sigma2 - np.log(inv_sigma2)))
+
+
+def lnlike_spec3(theta, v, y, yerr):
+    F_v,v_a,v_m,lnf = theta
+    model = weighted_spectrum(v,F_v,v_a,v_m)
+    inv_sigma2 = 1.0 / (yerr**2 + model**2 * np.exp(2*lnf))
+    return -0.5*(np.sum((y-model)**2*inv_sigma2 - np.log(inv_sigma2)))
+
+
+
+
 
 # Define priors
 
-priors = FluxFrequencyPriors(UniformPrior(flux_bounds.split(' ')[0],flux_bounds.split(' ')[1]),
-          UniformPrior(va_bounds.split(' ')[0],va_bounds.split(' ')[1]),
-          UniformPrior(vm_bounds.split(' ')[0],vm_bounds.split(' ')[1]), 
-          UniformPrior(lnf_bounds.split(' ')[0],lnf_bounds.split(' ')[1]))
+priors = FluxFrequencyPriors(UniformPrior(float(flux_bounds.split(' ')[0]),float(flux_bounds.split(' ')[1])),
+          UniformPrior(float(va_bounds.split(' ')[0]),float(va_bounds.split(' ')[1])),
+          UniformPrior(float(vm_bounds.split(' ')[0]),float(vm_bounds.split(' ')[1])), 
+          UniformPrior(float(lnf_bounds.split(' ')[0]),float(lnf_bounds.split(' ')[1])))
 
-
-print priors.lnprior([F_true,va_true,vm_true,-3.])
 
 
 # Define number of dimensions and number of walkers
@@ -177,13 +222,32 @@ pos = np.column_stack((frand,varand,vmrand,yerrand))
 pos_add_dim = np.expand_dims(pos,axis=0)
 final_pos = np.repeat(pos_add_dim, 5, axis=0)
 
+# Run MCMC sampler
+
 sampler = emcee.PTSampler(5, nwalkers, ndim, lnlike, priors.lnprior, loglargs=[freqs,flux,error])
 sams = sampler.run_mcmc(final_pos, 1000)
+
+
+sampler_spec2 = emcee.PTSampler(5, nwalkers, ndim, lnlike_spec2, priors.lnprior, loglargs=[freqs,flux,error])
+sams_spec2 = sampler_spec2.run_mcmc(final_pos, 1000)
+
+sampler_spec3 = emcee.PTSampler(5, nwalkers, ndim, lnlike_spec3, priors.lnprior, loglargs=[freqs,flux,error])
+sams_spec3 = sampler_spec3.run_mcmc(final_pos, 1000)
 
 # Burn off initial steps
 samples = sampler.chain[0,:, 500:, :].reshape((-1, ndim))
 
+samples_spec2 = sampler_spec2.chain[0,:, 500:, :].reshape((-1, ndim))
 
+samples_spec3 = sampler_spec3.chain[0,:, 500:, :].reshape((-1, ndim))
+
+
+#print samples.chain[np.where[samples.lnprobability == samples.lnprobability.max()]].mean(axis=0)
+maxprobs = sampler.chain[0,...][np.where(sampler.lnprobability[0,...] == sampler.lnprobability[0,...].max())].mean(axis=0)
+
+maxprobs_spec2 = sampler_spec2.chain[0,...][np.where(sampler_spec2.lnprobability[0,...] == sampler_spec2.lnprobability[0,...].max())].mean(axis=0)
+
+maxprobs_spec3 = sampler_spec3.chain[0,...][np.where(sampler_spec3.lnprobability[0,...] == sampler_spec3.lnprobability[0,...].max())].mean(axis=0)
 
 # Plot corner plots if argument -c is passed
 
@@ -214,10 +278,14 @@ if plot_traces is True:
     
     
 
-F_mcmc = np.mean(samples[:,0])
-va_mcmc = np.mean(samples[:,1])
-vm_mcmc = np.mean(samples[:,2])
-lnf_mcmc = np.mean(samples[:,3])
+#F_mcmc = np.mean(samples[:,0])
+#va_mcmc = np.mean(samples[:,1])
+#vm_mcmc = np.mean(samples[:,2])
+#lnf_mcmc = np.mean(samples[:,3])
+
+F_mcmc, va_mcmc, vm_mcmc, lnf_mcmc = maxprobs
+F_spec2_mcmc, va_spec2_mcmc, vm_spec2_mcmc, lnf_spec2_mcmc = maxprobs_spec2
+F_spec3_mcmc, va_spec3_mcmc, vm_spec3_mcmc, lnf_spec3_mcmc = maxprobs_spec3
 
 
 # Print results
@@ -229,8 +297,11 @@ print "Log Likelihood = %s" %lnlike([F_mcmc,va_mcmc,vm_mcmc,lnf_mcmc], freqs, fl
 
 v_range = np.linspace(1E9,350E9,1E4)
 plt.figure()
-plt.scatter(freqs,flux)
-plt.plot(v_range,spectrum(v_range,F_mcmc,va_mcmc,vm_mcmc))
+plt.scatter(freqs,flux,color='k')
+plt.plot(v_range,spectrum(v_range,F_mcmc,va_mcmc,vm_mcmc),label='Spectrum 1')
+plt.plot(v_range,spectrum_2(v_range,F_spec2_mcmc,va_spec2_mcmc,vm_spec2_mcmc),label='Spectrum 2')
+plt.plot(v_range,weighted_spectrum(v_range,F_spec3_mcmc,va_spec3_mcmc,vm_spec3_mcmc),label='Weighted Spectrum (F1=F2)')
+plt.legend()
 plt.xscale('log')
 plt.yscale('log')
 plt.show()
