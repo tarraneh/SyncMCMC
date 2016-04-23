@@ -307,4 +307,5 @@ plt.plot(v_range,weighted_spectrum(v_range,F_spec3_mcmc,va_spec3_mcmc,vm_spec3_m
 plt.legend()
 plt.xscale('log')
 plt.yscale('log')
+plt.title(data_file.split('_')[1])
 plt.show()

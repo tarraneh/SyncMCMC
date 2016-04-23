@@ -4,7 +4,6 @@ import numpy as np
 import seaborn as sns
 import emcee
 import corner
-import os
 import argparse
 from PTmcmc import run_mcmc
 sns.set_style("white")
@@ -314,20 +313,34 @@ F_spec3_mcmc, va_spec3_mcmc, vm_spec3_mcmc, lnf_spec3_mcmc = maxprobs_spec3
 F_spec4_mcmc, F2_spec4_mcmc,va_spec4_mcmc, vm_spec4_mcmc, lnf_spec4_mcmc = maxprobs_spec4
 
 # Print results
-print "F_v = %s" % F_mcmc
-print "v_a = %s" % va_mcmc
-print "v_m = %s" % vm_mcmc
+print "F_v_spec1 = %s" % F_mcmc
+print "v_a_spec1 = %s" % va_mcmc
+print "v_m_spec1 = %s" % vm_mcmc
+
+print "F_v_spec2 = %s" % F_spec2_mcmc
+print "v_a_spec2 = %s" % va_spec2_mcmc
+print "v_m_spec2 = %s" % vm_spec2_mcmc
+
+print "F_v_spec3 = %s" % F_spec3_mcmc
+print "v_a_spec3 = %s" % va_spec3_mcmc
+print "v_m_spec3 = %s" % vm_spec3_mcmc
+
+print "F_v_spec4 = %s" % F_spec4_mcmc
+print "F2_v_spec4 = %s" % F2_spec4_mcmc
+print "v_a_spec4 = %s" % va_spec4_mcmc
+print "v_m_spec4 = %s" % vm_spec4_mcmc
 
 print "Log Likelihood = %s" %lnlike([F_mcmc,va_mcmc,vm_mcmc,lnf_mcmc], freqs, flux, error)
 
 v_range = np.linspace(1E9,350E9,1E4)
 plt.figure()
 plt.scatter(freqs,flux,color='k')
-plt.plot(v_range,spectrum(v_range,F_mcmc,va_mcmc,vm_mcmc),label='Spectrum 1')
-plt.plot(v_range,spectrum_2(v_range,F_spec2_mcmc,va_spec2_mcmc,vm_spec2_mcmc),label='Spectrum 2')
-plt.plot(v_range,weighted_spectrum(v_range,F_spec3_mcmc,va_spec3_mcmc,vm_spec3_mcmc),label='Weighted Spectrum (F1=F2)')
-plt.plot(v_range,comb_spectrum(v_range,F_spec4_mcmc,F2_spec4_mcmc,va_spec4_mcmc,vm_spec4_mcmc),label='Weighted Spectrum')
+plt.plot(v_range,spectrum(v_range,F_mcmc,va_mcmc,vm_mcmc),lw='0.5',label='Spectrum 1')
+plt.plot(v_range,spectrum_2(v_range,F_spec2_mcmc,va_spec2_mcmc,vm_spec2_mcmc),lw='0.8',label='Spectrum 2')
+plt.plot(v_range,weighted_spectrum(v_range,F_spec3_mcmc,va_spec3_mcmc,vm_spec3_mcmc),ls='-.',lw='0.9',label='Weighted Spectrum (F1=F2)')
+plt.plot(v_range,comb_spectrum(v_range,F_spec4_mcmc,F2_spec4_mcmc,va_spec4_mcmc,vm_spec4_mcmc),ls=':',lw='0.9',label='Weighted Spectrum')
 plt.legend()
 plt.xscale('log')
 plt.yscale('log')
+plt.title(data_file.split('_')[1])
 plt.show()
