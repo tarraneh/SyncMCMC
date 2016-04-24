@@ -265,7 +265,7 @@ samples_spec3 = sampler_spec3.chain[0,:, 500:, :].reshape((-1, ndim))
 samples_spec4 = sampler_spec4.chain[0,:, 500:, :].reshape((-1, 5))
 
 
-#print samples.chain[np.where[samples.lnprobability == samples.lnprobability.max()]].mean(axis=0)
+
 maxprobs = sampler.chain[0,...][np.where(sampler.lnprobability[0,...] == sampler.lnprobability[0,...].max())].mean(axis=0)
 
 maxprobs_spec2 = sampler_spec2.chain[0,...][np.where(sampler_spec2.lnprobability[0,...] == sampler_spec2.lnprobability[0,...].max())].mean(axis=0)
@@ -332,7 +332,7 @@ print "v_m_spec4 = %s" % vm_spec4_mcmc
 
 print "Log Likelihood = %s" %lnlike([F_mcmc,va_mcmc,vm_mcmc,lnf_mcmc], freqs, flux, error)
 
-v_range = np.linspace(1E9,350E9,1E4)
+v_range = np.linspace(1E9,350E11,1E4)
 plt.figure()
 plt.scatter(freqs,flux,color='k')
 plt.plot(v_range,spectrum(v_range,F_mcmc,va_mcmc,vm_mcmc),lw='0.5',label='Spectrum 1')
