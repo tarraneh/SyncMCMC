@@ -5,7 +5,7 @@ import seaborn as sns
 import emcee
 import corner
 import argparse
-from PTmcmc import run_mcmc
+import re
 sns.set_style("white")
 
 """
@@ -86,8 +86,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input', help='Specify input file for retrieving data', dest='data',type=str,default='None',action='store',required=True)
 parser.add_argument('-r', '--raw', help='Plot raw data', dest='raw',default='None',action='store_true',required=False)
 parser.add_argument('-fp', '--fprior', help='Define uniform prior bounds for flux normalization, -fp lower upper', dest='fluxprior',default='1. 55.',action='store',required=False)
-parser.add_argument('-vap', '--vaprior', help='Define uniform prior bounds for self absorption frequency, -vap lower upper', dest='vaprior',default='1E8 1E13',action='store',required=False)
-parser.add_argument('-vmp', '--vmprior', help='Define uniform prior bounds for characteristic frequency, -vam lower upper', dest='vmprior',default='1E8 1E13',action='store',required=False)
+parser.add_argument('-vap', '--vaprior', help='Define uniform prior bounds for self absorption frequency, -vap lower upper', dest='vaprior',default='1E9 1E11',action='store',required=False)
+parser.add_argument('-vmp', '--vmprior', help='Define uniform prior bounds for characteristic frequency, -vam lower upper', dest='vmprior',default='1E9 1E11',action='store',required=False)
 parser.add_argument('-lnfp' '--lnfprior', help='Define uniform prior bounds for fractional amount by which variance is underestimated, -lnfp lower upper', dest='lnfprior',type=str, default='-3. -0.01',action='store',required=False)
 parser.add_argument('-c', '--corner', help='Plot corner plots', dest='corner',default='None',action='store_true',required=False)
 parser.add_argument('-t', '--trace', help='Plot MCMC traces', dest='traces',default='None',action='store_true',required=False)
@@ -312,10 +312,12 @@ F_spec2_mcmc, va_spec2_mcmc, vm_spec2_mcmc, lnf_spec2_mcmc = maxprobs_spec2
 F_spec3_mcmc, va_spec3_mcmc, vm_spec3_mcmc, lnf_spec3_mcmc = maxprobs_spec3
 F_spec4_mcmc, F2_spec4_mcmc,va_spec4_mcmc, vm_spec4_mcmc, lnf_spec4_mcmc = maxprobs_spec4
 
+
 # Print results
 print "F_v_spec1 = %s" % F_mcmc
 print "v_a_spec1 = %s" % va_mcmc
 print "v_m_spec1 = %s" % vm_mcmc
+print "lnf = %s" % lnf_mcmc
 
 print "F_v_spec2 = %s" % F_spec2_mcmc
 print "v_a_spec2 = %s" % va_spec2_mcmc
@@ -332,7 +334,32 @@ print "v_m_spec4 = %s" % vm_spec4_mcmc
 
 print "Log Likelihood = %s" %lnlike([F_mcmc,va_mcmc,vm_mcmc,lnf_mcmc], freqs, flux, error)
 
-v_range = np.linspace(1E9,350E11,1E4)
+# Write results to files
+days = re.findall('\d+',data_file.split('_')[1])
+
+spec1_results = [float(days[0]),F_mcmc,va_mcmc,vm_mcmc]
+spec2_results = [float(days[0]),F_spec2_mcmc,va_spec2_mcmc,vm_spec2_mcmc]
+spec3_results = [float(days[0]),F_spec3_mcmc,va_spec3_mcmc,vm_spec3_mcmc]
+spec4_results = [float(days[0]),F_spec4_mcmc,va_spec4_mcmc,vm_spec4_mcmc]
+
+
+with open("spectrum1_results","a") as input_file:
+    np.savetxt(input_file,spec1_results, fmt='%1.5f',newline=' ')
+    input_file.write('\n')
+
+with open("spectrum2_results","a") as input_file:
+    np.savetxt(input_file,spec2_results, fmt='%1.5f',newline=' ')
+    input_file.write('\n')
+
+with open("spectrum3_results","a") as input_file:
+    np.savetxt(input_file,spec3_results, fmt='%1.5f',newline=' ')
+    input_file.write('\n')
+
+with open("spectrum4_results","a") as input_file:
+    np.savetxt(input_file,spec4_results, fmt='%1.5f',newline=' ')
+    input_file.write('\n')    
+
+v_range = np.linspace(1E9,350E9,1E4)
 plt.figure()
 plt.scatter(freqs,flux,color='k')
 plt.plot(v_range,spectrum(v_range,F_mcmc,va_mcmc,vm_mcmc),lw='0.5',label='Spectrum 1')
