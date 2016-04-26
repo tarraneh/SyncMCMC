@@ -26,12 +26,12 @@ sns.set_style("white")
    -i     --input        Specify data file
    -r     --raw          Plot raw data
    -fp    --fprior       Speicify lower and upper bounds for prior on flux normalization factor (Default: 1:50)
-   -vap   --vaprior      Specify lower and upper bounds for prior on self absorption frequency (Default 1E9:1E13)
-   -vam   --vamprior     Specify lower and upper bounds for prior on characteristic frequency (Default 1E9:1E13)
+   -vap   --vaprior      Specify lower and upper bounds for prior on self absorption frequency (Default 1E9:1E11)
+   -vam   --vamprior     Specify lower and upper bounds for prior on characteristic frequency (Default 1E9:1E11)
    -lnfp  --lnfprior     Specify lower and upper bounds for prior on fractional amount by which variance is underestimated
    -t     --trace        Plot MCMC traces for F_v, v_a, v_m
    -c     --corner       Plot corner plots
-   -F     --F_true       Specify true value for F_v
+   -Ft     --F_true       Specify true value for F_v
    -vat   --va_true      Specify true value for va
    -vmt   --vm_true      Specify true value for vm 
 
@@ -219,22 +219,22 @@ F_spec4_mcmc, F2_spec4_mcmc,va_spec4_mcmc, vm_spec4_mcmc, lnf_spec4_mcmc = maxpr
 
 
 # Print results
-print "F_v_spec1 = %s" % F_mcmc
-print "v_a_spec1 = %s" % va_mcmc
-print "v_m_spec1 = %s" % vm_mcmc
+print ("F_v_spec1 = %s" % F_mcmc)
+print ("v_a_spec1 = %s" % va_mcmc)
+print ("v_m_spec1 = %s" % vm_mcmc)
 
-print "F_v_spec2 = %s" % F_spec2_mcmc
-print "v_a_spec2 = %s" % va_spec2_mcmc
-print "v_m_spec2 = %s" % vm_spec2_mcmc
+print ("F_v_spec2 = %s" % F_spec2_mcmc)
+print ("v_a_spec2 = %s" % va_spec2_mcmc)
+print ("v_m_spec2 = %s" % vm_spec2_mcmc)
 
-print "F_v_spec3 = %s" % F_spec3_mcmc
-print "v_a_spec3 = %s" % va_spec3_mcmc
-print "v_m_spec3 = %s" % vm_spec3_mcmc
+print ("F_v_spec3 = %s" % F_spec3_mcmc)
+print ("v_a_spec3 = %s" % va_spec3_mcmc)
+print ("v_m_spec3 = %s" % vm_spec3_mcmc)
 
-print "F_v_spec4 = %s" % F_spec4_mcmc
-print "F2_v_spec4 = %s" % F2_spec4_mcmc
-print "v_a_spec4 = %s" % va_spec4_mcmc
-print "v_m_spec4 = %s" % vm_spec4_mcmc
+print ("F_v_spec4 = %s" % F_spec4_mcmc)
+print ("F2_v_spec4 = %s" % F2_spec4_mcmc)
+print ("v_a_spec4 = %s" % va_spec4_mcmc)
+print ("v_m_spec4 = %s" % vm_spec4_mcmc)
 
 print "Log Likelihood for Model 1 = %s" %lnlike([F_mcmc,va_mcmc,vm_mcmc,lnf_mcmc], freqs, flux, error)
 
@@ -263,7 +263,7 @@ with open("results/spectrum3_results","a") as input_file:
 with open("results/spectrum4_results","a") as input_file:
     np.savetxt(input_file,spec4_results, fmt='%1.5f',newline=' ')
     input_file.write('\n')    
-    
+
 
 v_range = np.linspace(1E9,350E9,1E4)
 plt.figure()
