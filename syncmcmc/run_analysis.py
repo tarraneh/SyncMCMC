@@ -28,7 +28,6 @@ sns.set_style("white")
    -fp    --fprior       Speicify lower and upper bounds for prior on flux normalization factor (Default: 1:50)
    -vap   --vaprior      Specify lower and upper bounds for prior on self absorption frequency (Default 1E9:1E11)
    -vam   --vamprior     Specify lower and upper bounds for prior on characteristic frequency (Default 1E9:1E11)
-   -lnfp  --lnfprior     Specify lower and upper bounds for prior on fractional amount by which variance is underestimated
    -t     --trace        Plot MCMC traces for F_v, v_a, v_m
    -c     --corner       Plot corner plots
    -Ft     --F_true       Specify true value for F_v
@@ -64,10 +63,9 @@ sns.set_style("white")
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input', help='Specify input file for retrieving data', dest='data',type=str,default='None',action='store',required=True)
 parser.add_argument('-r', '--raw', help='Plot raw data', dest='raw',default='None',action='store_true',required=False)
-parser.add_argument('-fp', '--fprior', help='Define uniform prior bounds for flux normalization, -fp lower upper', dest='fluxprior',default='1. 55.',action='store',required=False)
-parser.add_argument('-vap', '--vaprior', help='Define uniform prior bounds for self absorption frequency, -vap lower upper', dest='vaprior',default='1E9 1E11',action='store',required=False)
-parser.add_argument('-vmp', '--vmprior', help='Define uniform prior bounds for characteristic frequency, -vam lower upper', dest='vmprior',default='1E9 1E11',action='store',required=False)
-parser.add_argument('-lnfp' '--lnfprior', help='Define uniform prior bounds for fractional amount by which variance is underestimated, -lnfp lower upper', dest='lnfprior',type=str, default='-3. -0.01',action='store',required=False)
+parser.add_argument('-fp', '--fprior', help='Define uniform prior bounds for flux normalization, -fp lower upper', dest='fluxprior',default='1.,155.',action='store',required=False)
+parser.add_argument('-vap', '--vaprior', help='Define uniform prior bounds for self absorption frequency, -vap lower upper', dest='vaprior',type=str,default='1E8,1E12',action='store',required=False)
+parser.add_argument('-vmp', '--vmprior', help='Define uniform prior bounds for characteristic frequency, -vam lower upper', dest='vmprior',type=str,default='1E8,1E12',action='store',required=False)
 parser.add_argument('-c', '--corner', help='Plot corner plots', dest='corner',default='None',action='store_true',required=False)
 parser.add_argument('-t', '--trace', help='Plot MCMC traces', dest='traces',default='None',action='store_true',required=False)
 parser.add_argument('-Ft', '--F_true', help='Specify true value for F_v', type=str,dest='F_true',action='store',required=True)
@@ -82,7 +80,6 @@ plot_raw_data = args.raw
 flux_bounds = args.fluxprior
 va_bounds = args.vaprior
 vm_bounds = args.vmprior
-lnf_bounds = args.lnfprior
 plot_corner = args.corner
 plot_traces = args.traces
 F_true = (args.F_true)
@@ -107,22 +104,20 @@ if plot_raw_data is True:
 
 # Define priors
 
-priors = FluxFrequencyPriors(UniformPrior(float(flux_bounds.split(' ')[0]),float(flux_bounds.split(' ')[1])),
-          UniformPrior(float(va_bounds.split(' ')[0]),float(va_bounds.split(' ')[1])),
-          UniformPrior(float(vm_bounds.split(' ')[0]),float(vm_bounds.split(' ')[1])), 
-          UniformPrior(float(lnf_bounds.split(' ')[0]),float(lnf_bounds.split(' ')[1])))
+priors = FluxFrequencyPriors(UniformPrior(float(flux_bounds.split(',')[0]),float(flux_bounds.split(',')[1])),
+          UniformPrior(float(va_bounds.split(',')[0]),float(va_bounds.split(',')[1])),
+          UniformPrior(float(vm_bounds.split(',')[0]),float(vm_bounds.split(',')[1])))
 
-priors_spec4 = FluxFrequencyPriorsCombinedSpectrum(UniformPrior(float(flux_bounds.split(' ')[0]),float(flux_bounds.split(' ')[1])),
-          UniformPrior(float(flux_bounds.split(' ')[0]),float(flux_bounds.split(' ')[1])),
-          UniformPrior(float(va_bounds.split(' ')[0]),float(va_bounds.split(' ')[1])),
-          UniformPrior(float(vm_bounds.split(' ')[0]),float(vm_bounds.split(' ')[1])), 
-          UniformPrior(float(lnf_bounds.split(' ')[0]),float(lnf_bounds.split(' ')[1])))
+priors_spec4 = FluxFrequencyPriorsCombinedSpectrum(UniformPrior(float(flux_bounds.split(',')[0]),float(flux_bounds.split(',')[1])),
+          UniformPrior(float(flux_bounds.split(',')[0]),float(flux_bounds.split(',')[1])),
+          UniformPrior(float(va_bounds.split(',')[0]),float(va_bounds.split(',')[1])),
+          UniformPrior(float(vm_bounds.split(',')[0]),float(vm_bounds.split(',')[1])))
 
 
 
 # Define number of dimensions and number of walkers
 
-ndim, nwalkers = 4, 100
+ndim, nwalkers = 3, 100
 
 
 
@@ -132,16 +127,16 @@ frand = np.random.normal(loc=F_true,size=nwalkers,scale=0.1)
 frand_2 = np.random.normal(loc=F_true,size=nwalkers,scale=0.1)
 varand = np.random.normal(loc=va_true,size=nwalkers,scale=1.E3)
 vmrand = np.random.normal(loc=vm_true,size=nwalkers,scale=1.E3)
-yerrand = np.random.normal(loc=-0.7,size=nwalkers,scale=0.1)
 
-pos = np.column_stack((frand,varand,vmrand,yerrand)) 
+
+pos = np.column_stack((frand,varand,vmrand)) 
 pos_add_dim = np.expand_dims(pos,axis=0)
 final_pos = np.repeat(pos_add_dim, 5, axis=0)
 
 
 # Define initial positions for spectrum 4 walkers
 
-pos_spec4 = np.column_stack((frand,frand_2,varand,vmrand,yerrand)) 
+pos_spec4 = np.column_stack((frand,frand_2,varand,vmrand)) 
 pos_add_dim_spec4 = np.expand_dims(pos_spec4,axis=0)
 final_pos_spec4 = np.repeat(pos_add_dim_spec4, 5, axis=0)
 
@@ -154,7 +149,7 @@ sampler_spec2, sams_spec2 = run_PTmcmc(5,lnlike_spec2, priors, final_pos, ndim, 
 
 sampler_spec3, sams_spec3 = run_PTmcmc(5,lnlike_spec3, priors, final_pos, ndim, nwalkers, logargs=[freqs,flux,error])
 
-sampler_spec4, sams_spec4 = run_PTmcmc(5,lnlike_spec4, priors_spec4, final_pos_spec4, 5, nwalkers, logargs=[freqs,flux,error])
+sampler_spec4, sams_spec4 = run_PTmcmc(5,lnlike_spec4, priors_spec4, final_pos_spec4, 4, nwalkers, logargs=[freqs,flux,error])
 
 
 
@@ -165,7 +160,7 @@ samples_spec2 = sampler_spec2.chain[0,:, 500:, :].reshape((-1, ndim))
 
 samples_spec3 = sampler_spec3.chain[0,:, 500:, :].reshape((-1, ndim))
 
-samples_spec4 = sampler_spec4.chain[0,:, 500:, :].reshape((-1, 5))
+samples_spec4 = sampler_spec4.chain[0,:, 500:, :].reshape((-1, 4))
 
 
 # Find values corresponding to maximum of posterior for each model
@@ -183,7 +178,7 @@ maxprobs_spec4 = sampler_spec4.chain[0,...][np.where(sampler_spec4.lnprobability
 # Plot corner plots if argument -c is passed
 
 if plot_corner is True:
-    fig = corner.corner(samples, labels=["$F_v$", "$v_a$", "$v_m$", "lnf"],truths=[F_true,va_true,vm_true, np.log(0.1)])
+    fig = corner.corner(samples, labels=["$F_v$", "$v_a$", "$v_m$"],truths=[F_true,va_true,vm_true])
 
 
 # Plot traces if argument -t is passed
@@ -212,55 +207,75 @@ if plot_traces is True:
 
 # Print parameter estimation results corresponding to max of lnprob
 
-F_mcmc, va_mcmc, vm_mcmc, lnf_mcmc = maxprobs
-F_spec2_mcmc, va_spec2_mcmc, vm_spec2_mcmc, lnf_spec2_mcmc = maxprobs_spec2
-F_spec3_mcmc, va_spec3_mcmc, vm_spec3_mcmc, lnf_spec3_mcmc = maxprobs_spec3
-F_spec4_mcmc, F2_spec4_mcmc,va_spec4_mcmc, vm_spec4_mcmc, lnf_spec4_mcmc = maxprobs_spec4
+#F_mcmc, va_mcmc, vm_mcmc = maxprobs
+#F_spec2_mcmc, va_spec2_mcmc, vm_spec2_mcmc = maxprobs_spec2
+#F_spec3_mcmc, va_spec3_mcmc, vm_spec3_mcmc = maxprobs_spec3
+#F_spec4_mcmc, F2_spec4_mcmc,va_spec4_mcmc, vm_spec4_mcmc = maxprobs_spec4
+#
+
+F_mcmc, va_mcmc, vm_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
+                             zip(*np.percentile(samples, [16, 50, 84],axis=0)))
 
 
-# Print results
-print ("F_v_spec1 = %s" % F_mcmc)
-print ("v_a_spec1 = %s" % va_mcmc)
-print ("v_m_spec1 = %s" % vm_mcmc)
+F_spec2_mcmc, va_spec2_mcmc, vm_spec2_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
+                             zip(*np.percentile(samples_spec2, [16, 50, 84],axis=0)))
 
-print ("F_v_spec2 = %s" % F_spec2_mcmc)
-print ("v_a_spec2 = %s" % va_spec2_mcmc)
-print ("v_m_spec2 = %s" % vm_spec2_mcmc)
+F_spec3_mcmc, va_spec3_mcmc, vm_spec3_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
+                             zip(*np.percentile(samples_spec3, [16, 50, 84],axis=0)))
 
-print ("F_v_spec3 = %s" % F_spec3_mcmc)
-print ("v_a_spec3 = %s" % va_spec3_mcmc)
-print ("v_m_spec3 = %s" % vm_spec3_mcmc)
+F_spec4_mcmc, F2_spec4_mcmc,va_spec4_mcmc, vm_spec4_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]), zip(*np.percentile(samples_spec4, [16, 50, 84],axis=0)))
 
-print ("F_v_spec4 = %s" % F_spec4_mcmc)
-print ("F2_v_spec4 = %s" % F2_spec4_mcmc)
-print ("v_a_spec4 = %s" % va_spec4_mcmc)
-print ("v_m_spec4 = %s" % vm_spec4_mcmc)
 
-print "Log Likelihood for Model 1 = %s" %lnlike([F_mcmc,va_mcmc,vm_mcmc,lnf_mcmc], freqs, flux, error)
+print F_mcmc
+print F_mcmc[0]
+print F_mcmc[1]
+print F_mcmc[2]
+## Print results
+#print ("F_v_spec1 = %s" % F_mcmc)
+#print ("v_a_spec1 = %s" % va_mcmc)
+#print ("v_m_spec1 = %s" % vm_mcmc)
+#
+#print ("F_v_spec2 = %s" % F_spec2_mcmc)
+#print ("v_a_spec2 = %s" % va_spec2_mcmc)
+#print ("v_m_spec2 = %s" % vm_spec2_mcmc)
+#
+#print ("F_v_spec3 = %s" % F_spec3_mcmc)
+#print ("v_a_spec3 = %s" % va_spec3_mcmc)
+#print ("v_m_spec3 = %s" % vm_spec3_mcmc)
+#
+#print ("F_v_spec4 = %s" % F_spec4_mcmc)
+#print ("F2_v_spec4 = %s" % F2_spec4_mcmc)
+#print ("v_a_spec4 = %s" % va_spec4_mcmc)
+#print ("v_m_spec4 = %s" % vm_spec4_mcmc)
+#
+#print "Log Likelihood for Model 1 = %s" %lnlike([F_mcmc,va_mcmc,vm_mcmc,lnf_mcmc], freqs, flux, error)
 
 
 # Write results to files
 days = re.findall('\d+',data_file.split('_')[1])
 
-spec1_results = [float(days[0]),F_mcmc,va_mcmc,vm_mcmc]
-spec2_results = [float(days[0]),F_spec2_mcmc,va_spec2_mcmc,vm_spec2_mcmc]
-spec3_results = [float(days[0]),F_spec3_mcmc,va_spec3_mcmc,vm_spec3_mcmc]
-spec4_results = [float(days[0]),F_spec4_mcmc,va_spec4_mcmc,vm_spec4_mcmc]
+spec1_results = [float(days[0]),F_mcmc[0],F_mcmc[1],F_mcmc[2],va_mcmc[0],va_mcmc[1],va_mcmc[2],vm_mcmc[0],vm_mcmc[1],vm_mcmc[2]]
+spec2_results = [float(days[0]),F_spec2_mcmc[0],F_spec2_mcmc[1],F_spec2_mcmc[2],va_spec2_mcmc[0],va_spec2_mcmc[1],va_spec2_mcmc[2],
+                vm_spec2_mcmc[0],vm_spec2_mcmc[1],vm_spec2_mcmc[2]]
+spec3_results = [float(days[0]),F_spec3_mcmc[0],F_spec3_mcmc[1],F_spec3_mcmc[2],va_spec3_mcmc[0],va_spec3_mcmc[1],va_spec3_mcmc[2],
+                vm_spec3_mcmc[0],vm_spec3_mcmc[1],vm_spec3_mcmc[2]]
+spec4_results = [float(days[0]),F_spec4_mcmc[0],F_spec4_mcmc[1],F_spec4_mcmc[2],va_spec4_mcmc[0],va_spec4_mcmc[1],va_spec4_mcmc[2],
+                vm_spec4_mcmc[0],vm_spec4_mcmc[1],vm_spec4_mcmc[2]]
 
 
-with open("results/spectrum1_results","a") as input_file:
+with open("results/spectrum1_results_phys201","a") as input_file:
     np.savetxt(input_file,spec1_results, fmt='%1.5f',newline=' ')
     input_file.write('\n')
 
-with open("results/spectrum2_results","a") as input_file:
+with open("results/spectrum2_results_phys201","a") as input_file:
     np.savetxt(input_file,spec2_results, fmt='%1.5f',newline=' ')
     input_file.write('\n')
 
-with open("results/spectrum3_results","a") as input_file:
+with open("results/spectrum3_results_phys201","a") as input_file:
     np.savetxt(input_file,spec3_results, fmt='%1.5f',newline=' ')
     input_file.write('\n')
 
-with open("results/spectrum4_results","a") as input_file:
+with open("results/spectrum4_results_phys201","a") as input_file:
     np.savetxt(input_file,spec4_results, fmt='%1.5f',newline=' ')
     input_file.write('\n')    
 
@@ -268,13 +283,15 @@ with open("results/spectrum4_results","a") as input_file:
 v_range = np.linspace(1E9,350E9,1E4)
 plt.figure()
 plt.scatter(freqs,flux,color='k')
-plt.plot(v_range,spectrum(v_range,F_mcmc,va_mcmc,vm_mcmc),lw='0.5',label='Spectrum 1')
-plt.plot(v_range,spectrum_2(v_range,F_spec2_mcmc,va_spec2_mcmc,vm_spec2_mcmc),lw='0.8',label='Spectrum 2')
-plt.plot(v_range,weighted_spectrum(v_range,F_spec3_mcmc,va_spec3_mcmc,vm_spec3_mcmc),ls='-.',lw='0.9',label='Weighted Spectrum (F1=F2)')
-plt.plot(v_range,comb_spectrum(v_range,F_spec4_mcmc,F2_spec4_mcmc,va_spec4_mcmc,vm_spec4_mcmc),ls=':',lw='0.9',label='Weighted Spectrum')
+plt.plot(v_range,spectrum(v_range,F_mcmc[0],va_mcmc[0],vm_mcmc[0]),color='#1b9e77',label='Spectrum 1',lw='0.9')
+plt.plot(v_range,spectrum_2(v_range,F_spec2_mcmc[0],va_spec2_mcmc[0],vm_spec2_mcmc[0]),color='grey',label='Spectrum 2',lw='0.7')
+plt.plot(v_range,weighted_spectrum(v_range,F_spec3_mcmc[0],va_spec3_mcmc[0],vm_spec3_mcmc[0]),ls='-.',color='#7570b3',label='Weighted Spectrum (F1=F2)')
+plt.plot(v_range,comb_spectrum(v_range,F_spec4_mcmc[0],F2_spec4_mcmc[0],va_spec4_mcmc[0],vm_spec4_mcmc[0]),ls=':',color='#666666',label='Weighted Spectrum')
 plt.legend()
 plt.xscale('log')
 plt.yscale('log')
+plt.xlabel('Frequency [Hz]')
+plt.ylabel('Flux [mJy]')
 plt.title(data_file.split('_')[1])
 plt.show()
 

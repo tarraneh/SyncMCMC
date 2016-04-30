@@ -55,6 +55,7 @@ s_5 = 1.25 - 0.18 * p
 
 
 
+
 ### Synchrotron Models ###
 
 # Define synchrotron spectrum for Model 1 
@@ -93,36 +94,36 @@ def comb_spectrum(v,F_v,F_2,v_a,v_m):
 # Log likelihood for Model 1
 
 def lnlike(theta, v, y, yerr):
-    F_v,v_a,v_m,lnf = theta
+    F_v,v_a,v_m = theta
     model = spectrum(v,F_v,v_a,v_m)
-    inv_sigma2 = 1.0 / (yerr**2 + model**2 * np.exp(2*lnf))
+    inv_sigma2 = 1.0 / (yerr**2)
     return -0.5*(np.sum((y-model)**2*inv_sigma2 - np.log(inv_sigma2)))
 
 
 # Log likelihood for Model 2
 
 def lnlike_spec2(theta, v, y, yerr):
-    F_v,v_a,v_m,lnf = theta
+    F_v,v_a,v_m = theta
     model = spectrum_2(v,F_v,v_a,v_m)
-    inv_sigma2 = 1.0 / (yerr**2 + model**2 * np.exp(2*lnf))
+    inv_sigma2 = 1.0 / (yerr**2)
     return -0.5*(np.sum((y-model)**2*inv_sigma2 - np.log(inv_sigma2)))
 
 
 # Log likelihood for Model 3
 
 def lnlike_spec3(theta, v, y, yerr):
-    F_v,v_a,v_m,lnf = theta
+    F_v,v_a,v_m = theta
     model = weighted_spectrum(v,F_v,v_a,v_m)
-    inv_sigma2 = 1.0 / (yerr**2 + model**2 * np.exp(2*lnf))
+    inv_sigma2 = 1.0 / (yerr**2)
     return -0.5*(np.sum((y-model)**2*inv_sigma2 - np.log(inv_sigma2)))
 
 
 # Log likelihood for Model 4
 
 def lnlike_spec4(theta, v, y, yerr):
-    F_v,F_v2,v_a,v_m,lnf = theta
+    F_v,F_v2,v_a,v_m = theta
     model = comb_spectrum(v,F_v,F_v2,v_a,v_m)
-    inv_sigma2 = 1.0 / (yerr**2 + model**2 * np.exp(2*lnf))
+    inv_sigma2 = 1.0 / (yerr**2)
     return -0.5*(np.sum((y-model)**2*inv_sigma2 - np.log(inv_sigma2)))
 
 

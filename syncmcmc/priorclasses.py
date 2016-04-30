@@ -41,34 +41,37 @@ class UniformPrior(Printable):
             return 0.0
         return -np.inf
 
+
+
+
 class FluxFrequencyPriors(Printable):
 
     ''' Assign priors for the flux normalization factor, self absorption frequency, and characteristic electron frequency.'''
 
-    def __init__(self,flux_prior,va_prior,vm_prior,lnf_prior):
+    def __init__(self,flux_prior,va_prior,vm_prior):
         self.flux_prior = flux_prior
         self.va_prior = va_prior
         self.vm_prior = vm_prior
-        self.lnf_prior = lnf_prior
+
 
     def lnprior(self, theta):
-        flux, va, vm, lnf = theta
-        return self.flux_prior.lnprior(flux) + self.va_prior.lnprior(va) + self.vm_prior.lnprior(vm) + self.lnf_prior.lnprior(lnf)
+        flux, va, vm = theta
+        return self.flux_prior.lnprior(flux) + self.va_prior.lnprior(va) + self.vm_prior.lnprior(vm)
 
 
 class FluxFrequencyPriorsCombinedSpectrum(Printable):
 
     ''' Assign priors for the flux normalization factor, self absorption frequency, and characteristic electron frequency.'''
 
-    def __init__(self,flux_prior,flux2_prior,va_prior,vm_prior,lnf_prior):
+    def __init__(self,flux_prior,flux2_prior,va_prior,vm_prior):
         self.flux_prior = flux_prior
         self.flux2_prior = flux2_prior
         self.va_prior = va_prior
         self.vm_prior = vm_prior
-        self.lnf_prior = lnf_prior
+
 
     def lnprior(self, theta):
-        flux, flux2, va, vm, lnf = theta
-        return self.flux_prior.lnprior(flux) + self.flux2_prior.lnprior(flux2) + self.va_prior.lnprior(va) + self.vm_prior.lnprior(vm) + self.lnf_prior.lnprior(lnf)
+        flux, flux2, va, vm = theta
+        return self.flux_prior.lnprior(flux) + self.flux2_prior.lnprior(flux2) + self.va_prior.lnprior(va) + self.vm_prior.lnprior(vm)
 
 

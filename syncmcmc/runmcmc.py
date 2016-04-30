@@ -3,11 +3,12 @@ import emcee
 
 """
 
-    Run a Parallel-Tempered Markov Chain Monte Carlo fitting algorithm
+    Run a Parallel-Tempered Markov Chain Monte Carlo fitting algorithm.
 
 
     Options:
 
+    ntemps          :: Number of temperatures
     lnlike          :: Log likelihood function
     priors          :: Array of priors for all parameters
     position        :: Array of initial position of walkers for all parameters
@@ -19,7 +20,7 @@ import emcee
 
 
 
-def run_PTmcmc(ntemps,lnlike, priors, position, ndim=4, nwalkers=100,logargs=[]):
+def run_PTmcmc(ntemps,lnlike, priors, position, ndim=3, nwalkers=100,logargs=[]):
 
     # Run MCMC sampler
 
