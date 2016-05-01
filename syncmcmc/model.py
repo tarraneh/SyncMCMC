@@ -47,12 +47,21 @@ beta5_2 = (1.0 - p)/2.0
 
 # Shape of spectrum at each break
 
-s_1 = 1.5
-s_2 = (1.76 + 0.05*p)
-s_3 = (0.8 - 0.03*p)
+#s_1 = 1.06
+#s_2 = 1.76 - 0.38*p
+#s_3 = 0.8 - 0.03*p
 s_4 = 3.63 * p - 1.60
 s_5 = 1.25 - 0.18 * p
 
+# Values from Granot and Sari
+#s_1 = 1.06
+#s_2 = 1.76 - 0.38*p
+#s_3 = 0.8 - 0.03*p
+
+## Values from Berger et al. 2011
+s_1 = 1.5
+s_2 = (1.76 + 0.05*p)
+s_3 = (0.8 - 0.03*p)
 
 
 
@@ -94,36 +103,36 @@ def comb_spectrum(v,F_v,F_2,v_a,v_m):
 # Log likelihood for Model 1
 
 def lnlike(theta, v, y, yerr):
-    F_v,v_a,v_m = theta
+    F_v,v_a,v_m,lnf = theta
     model = spectrum(v,F_v,v_a,v_m)
-    inv_sigma2 = 1.0 / (yerr**2)
+    inv_sigma2 = 1.0 / (yerr**2 + model**2 * np.exp(2*lnf))
     return -0.5*(np.sum((y-model)**2*inv_sigma2 - np.log(inv_sigma2)))
 
 
 # Log likelihood for Model 2
 
 def lnlike_spec2(theta, v, y, yerr):
-    F_v,v_a,v_m = theta
+    F_v,v_a,v_m,lnf = theta
     model = spectrum_2(v,F_v,v_a,v_m)
-    inv_sigma2 = 1.0 / (yerr**2)
+    inv_sigma2 = 1.0 / (yerr**2 + model**2 * np.exp(2*lnf))
     return -0.5*(np.sum((y-model)**2*inv_sigma2 - np.log(inv_sigma2)))
 
 
 # Log likelihood for Model 3
 
 def lnlike_spec3(theta, v, y, yerr):
-    F_v,v_a,v_m = theta
+    F_v,v_a,v_m,lnf = theta
     model = weighted_spectrum(v,F_v,v_a,v_m)
-    inv_sigma2 = 1.0 / (yerr**2)
+    inv_sigma2 = 1.0 / (yerr**2 + model**2 * np.exp(2*lnf))
     return -0.5*(np.sum((y-model)**2*inv_sigma2 - np.log(inv_sigma2)))
 
 
 # Log likelihood for Model 4
 
 def lnlike_spec4(theta, v, y, yerr):
-    F_v,F_v2,v_a,v_m = theta
+    F_v,F_v2,v_a,v_m,lnf = theta
     model = comb_spectrum(v,F_v,F_v2,v_a,v_m)
-    inv_sigma2 = 1.0 / (yerr**2)
+    inv_sigma2 = 1.0 / (yerr**2 + model**2 * np.exp(2*lnf))
     return -0.5*(np.sum((y-model)**2*inv_sigma2 - np.log(inv_sigma2)))
 
 
