@@ -14,3 +14,7 @@ The following files are included in the repository.
 - **run_all_epochs.py**: Performs the full parameter estimate analysis on 16 epochs of data, produces plots, and outputs results to files.
 - **plot_time_evolution.py**: Plots time evolution of parameter estimates from outputs produced by run_all_epochs.py. 
 - **equipartition.py**: Calculates various physical parameters based on parameter estimates from outputs produced by run_all_epochs.py.
+
+### Data File Format
+
+Data files should be formatted in a particular manner. Failure to properly format data files will prevent the analysis scripts from executing. All files should contain three columns listing the frequency, flux, and error in that order, and separated by commas. Any additional comment lines should include a '#'.
