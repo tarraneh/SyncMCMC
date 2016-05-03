@@ -90,7 +90,6 @@ va_true = (args.va_true)
 vm_true = (args.vm_true)
 
 
-
 # Load data
 
 flux, freqs, error = load_data(data_file)
@@ -120,6 +119,7 @@ priors_spec4 = FluxFrequencyPriorsCombinedSpectrum(UniformPrior(float(flux_bound
           UniformPrior(float(lnf_bounds.split(',')[0]),float(lnf_bounds.split(',')[1])))
 
 
+
 # Define number of dimensions and number of walkers
 
 ndim, nwalkers = 4, 100
@@ -144,7 +144,6 @@ final_pos = np.repeat(pos_add_dim, 5, axis=0)
 pos_spec4 = np.column_stack((frand,frand_2,varand,vmrand,yerrand)) 
 pos_add_dim_spec4 = np.expand_dims(pos_spec4,axis=0)
 final_pos_spec4 = np.repeat(pos_add_dim_spec4, 5, axis=0)
-
 
 
 # Run MCMC sampler for each model
@@ -184,7 +183,7 @@ maxprobs_spec4 = sampler_spec4.chain[0,...][np.where(sampler_spec4.lnprobability
 # Plot corner plots if argument -c is passed
 
 if plot_corner is True:
-    fig = corner.corner(samples, labels=["$F_v$", "$v_a$", "$v_m$"],truths=[F_true,va_true,vm_true])
+    fig = corner.corner(samples, labels=["$F_v$", "$v_a$", "$v_m$", "lnf"],truths=[F_true,va_true,vm_true, np.log(0.1)])
 
 
 # Plot traces if argument -t is passed
@@ -211,50 +210,49 @@ if plot_traces is True:
     
     
 
+# Print parameter estimation results corresponding to max of lnprob
 
-F_mcmc, va_mcmc, vm_mcmc, lnf_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
+F_mcmc, va_mcmc, vm_mcmc, lnf_mcmc = maxprobs
+F_spec2_mcmc, va_spec2_mcmc, vm_spec2_mcmc, lnf_spec2_mcmc = maxprobs_spec2
+F_spec3_mcmc, va_spec3_mcmc, vm_spec3_mcmc, lnf_spec3_mcmc = maxprobs_spec3
+F_spec4_mcmc, F2_spec4_mcmc,va_spec4_mcmc, vm_spec4_mcmc, lnf_spec4_mcmc = maxprobs_spec4
+
+
+F_mcmc, va_mcmc, vm_mcmc,lnf_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
                              zip(*np.percentile(samples, [16, 50, 84],axis=0)))
 
 
 F_spec2_mcmc, va_spec2_mcmc, vm_spec2_mcmc, lnf_spec2_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
                              zip(*np.percentile(samples_spec2, [16, 50, 84],axis=0)))
 
-F_spec3_mcmc, va_spec3_mcmc, vm_spec3_mcmc, lnf_spec3_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
+F_spec3_mcmc, va_spec3_mcmc, vm_spec3_mcmc,lnf_spec3_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
                              zip(*np.percentile(samples_spec3, [16, 50, 84],axis=0)))
 
-F_spec4_mcmc, F2_spec4_mcmc,va_spec4_mcmc, vm_spec4_mcmc, lnf_spec4_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
+F_spec4_mcmc, F2_spec4_mcmc,va_spec4_mcmc, vm_spec4_mcmc,lnf_spec4_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
                              zip(*np.percentile(samples_spec4, [16, 50, 84],axis=0)))
 
 
-print("""Model 1:
-    F = {0[0]} +{0[1]} -{0[2]} (Guess: {1})
-    v_a = {2[0]} +{2[1]} -{2[2]} (Guess: {3})
-    v_m = {4[0]} +{4[1]} -{4[2]} (Guess: {5})
-""".format(F_mcmc, F_true, va_mcmc, va_true, vm_mcmc, vm_true))
-
-print("""Model 2:
-    F = {0[0]} +{0[1]} -{0[2]} (Guess: {1})
-    v_a = {2[0]} +{2[1]} -{2[2]} (Guess: {3})
-    v_m = {4[0]} +{4[1]} -{4[2]} (Guess: {5})
-""".format(F_spec2_mcmc, F_true, va_spec2_mcmc, va_true, vm_spec2_mcmc, vm_true))
-
-
-print("""Model 3:
-    F = {0[0]} +{0[1]} -{0[2]} (Guess: {1})
-    v_a = {2[0]} +{2[1]} -{2[2]} (Guess: {3})
-    v_m = {4[0]} +{4[1]} -{4[2]} (Guess: {5})
-""".format(F_spec3_mcmc, F_true, va_spec3_mcmc, va_true, vm_spec3_mcmc, vm_true))
-
-
-print("""Model 4:
-    F = {0[0]} +{0[1]} -{0[2]} (Guess: {1})
-    F2 = {2[0]} +{2[1]} -{2[2]} (Guess: {3})
-    v_a = {4[0]} +{4[1]} -{4[2]} (Guess: {5})
-    v_a = {6[0]} +{6[1]} -{6[2]} (Guess: {7})
-""".format(F_spec4_mcmc, F_true, F2_spec4_mcmc,F_true,va_spec4_mcmc, va_true, vm_spec4_mcmc, vm_true))
-
-
-
+print F_mcmc
+print F_mcmc[0]
+print F_mcmc[1]
+print F_mcmc[2]
+## Print results
+#print ("F_v_spec1 = %s" % F_mcmc)
+#print ("v_a_spec1 = %s" % va_mcmc)
+#print ("v_m_spec1 = %s" % vm_mcmc)
+#
+#print ("F_v_spec2 = %s" % F_spec2_mcmc)
+#print ("v_a_spec2 = %s" % va_spec2_mcmc)
+#print ("v_m_spec2 = %s" % vm_spec2_mcmc)
+#
+#print ("F_v_spec3 = %s" % F_spec3_mcmc)
+#print ("v_a_spec3 = %s" % va_spec3_mcmc)
+#print ("v_m_spec3 = %s" % vm_spec3_mcmc)
+#
+#print ("F_v_spec4 = %s" % F_spec4_mcmc)
+#print ("F2_v_spec4 = %s" % F2_spec4_mcmc)
+#print ("v_a_spec4 = %s" % va_spec4_mcmc)
+#print ("v_m_spec4 = %s" % vm_spec4_mcmc)
 #
 #print "Log Likelihood for Model 1 = %s" %lnlike([F_mcmc,va_mcmc,vm_mcmc,lnf_mcmc], freqs, flux, error)
 
@@ -271,31 +269,31 @@ spec4_results = [float(days[0]),F_spec4_mcmc[0],F_spec4_mcmc[1],F_spec4_mcmc[2],
                 vm_spec4_mcmc[0],vm_spec4_mcmc[1],vm_spec4_mcmc[2]]
 
 
-with open("results/spectrum1_results_phys201","a") as input_file:
-    np.savetxt(input_file,spec1_results, fmt='%1.5f',newline=' ')
-    input_file.write('\n')
-
-with open("results/spectrum2_results_phys201","a") as input_file:
-    np.savetxt(input_file,spec2_results, fmt='%1.5f',newline=' ')
-    input_file.write('\n')
-
-with open("results/spectrum3_results_phys201","a") as input_file:
-    np.savetxt(input_file,spec3_results, fmt='%1.5f',newline=' ')
-    input_file.write('\n')
-
-with open("results/spectrum4_results_phys201","a") as input_file:
-    np.savetxt(input_file,spec4_results, fmt='%1.5f',newline=' ')
-    input_file.write('\n')    
-
+#with open("results/spectrum1_results_granotsari","a") as input_file:
+#    np.savetxt(input_file,spec1_results, fmt='%1.5f',newline=' ')
+#    input_file.write('\n')
+#
+#with open("results/spectrum2_results_granotsari","a") as input_file:
+#    np.savetxt(input_file,spec2_results, fmt='%1.5f',newline=' ')
+#    input_file.write('\n')
+#
+#with open("results/spectrum3_results_granotsari","a") as input_file:
+#    np.savetxt(input_file,spec3_results, fmt='%1.5f',newline=' ')
+#    input_file.write('\n')
+#
+#with open("results/spectrum4_results_granotsari","a") as input_file:
+#    np.savetxt(input_file,spec4_results, fmt='%1.5f',newline=' ')
+#    input_file.write('\n')    
+#
 
 v_range = np.linspace(1E9,350E9,1E4)
 plt.figure()
 plt.scatter(freqs,flux,color='k')
-plt.plot(v_range,spectrum(v_range,F_mcmc[0],va_mcmc[0],vm_mcmc[0]),color='#d95f02',label='Spectrum 1',lw='0.9')
-plt.plot(v_range,spectrum_2(v_range,F_spec2_mcmc[0],va_spec2_mcmc[0],vm_spec2_mcmc[0]),color='#7570b3',label='Spectrum 2',lw='0.7')
-plt.plot(v_range,weighted_spectrum(v_range,F_spec3_mcmc[0],va_spec3_mcmc[0],vm_spec3_mcmc[0]),ls='-.',color='#1b9e77',label='Weighted Spectrum (F1=F2)')
-plt.plot(v_range,comb_spectrum(v_range,F_spec4_mcmc[0],F2_spec4_mcmc[0],va_spec4_mcmc[0],vm_spec4_mcmc[0]),ls=':',color='k',label='Weighted Spectrum')
-plt.legend(loc='lower right')
+plt.plot(v_range,spectrum(v_range,F_mcmc[0],va_mcmc[0],vm_mcmc[0]),color='#1b9e77',label='Spectrum 1',lw='0.9')
+plt.plot(v_range,spectrum_2(v_range,F_spec2_mcmc[0],va_spec2_mcmc[0],vm_spec2_mcmc[0]),color='grey',label='Spectrum 2',lw='0.7')
+plt.plot(v_range,weighted_spectrum(v_range,F_spec3_mcmc[0],va_spec3_mcmc[0],vm_spec3_mcmc[0]),ls='-.',color='#7570b3',label='Weighted Spectrum (F1=F2)')
+plt.plot(v_range,comb_spectrum(v_range,F_spec4_mcmc[0],F2_spec4_mcmc[0],va_spec4_mcmc[0],vm_spec4_mcmc[0]),ls=':',color='#666666',label='Weighted Spectrum')
+#plt.legend()
 plt.xscale('log')
 plt.yscale('log')
 plt.xlabel('Frequency [Hz]')
