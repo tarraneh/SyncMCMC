@@ -133,7 +133,7 @@ for (data_file, F_true, va_true, vm_true,lnf_true) in zip(data_files, true_flux_
 
 
   all_samples = []
-  #flux_stdevs = []
+  flux_stdevs = []
   
   all_model_ests = []
 

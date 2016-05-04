@@ -65,8 +65,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input', help='Specify input file for retrieving data', dest='data',type=str,default='None',action='store',required=True)
 parser.add_argument('-r', '--raw', help='Plot raw data', dest='raw',default='None',action='store_true',required=False)
 parser.add_argument('-fp', '--fprior', help='Define uniform prior bounds for flux normalization, -fp lower upper', dest='fluxprior',default='1.,110.',action='store',required=False)
-parser.add_argument('-vap', '--vaprior', help='Define uniform prior bounds for self absorption frequency, -vap lower upper', dest='vaprior',type=str,default='1E9,42594740063.087387',action='store',required=False)
-parser.add_argument('-vmp', '--vmprior', help='Define uniform prior bounds for characteristic frequency, -vam lower upper', dest='vmprior',type=str,default='1E9,916740631070.63794',action='store',required=False)
+parser.add_argument('-vap', '--vaprior', help='Define uniform prior bounds for self absorption frequency, -vap lower upper', dest='vaprior',type=str,default='1E9,1E12',action='store',required=False)
+parser.add_argument('-vmp', '--vmprior', help='Define uniform prior bounds for characteristic frequency, -vam lower upper', dest='vmprior',type=str,default='1E9,1E12',action='store',required=False)
 parser.add_argument('-lnfp' '--lnfprior', help='Define uniform prior bounds for fractional amount by which variance is underestimated, -lnfp lower upper', dest='lnfprior',type=str, default='-3.,-0.01',action='store',required=False)
 parser.add_argument('-c', '--corner', help='Plot corner plots', dest='corner',default='None',action='store_true',required=False)
 parser.add_argument('-t', '--trace', help='Plot MCMC traces', dest='traces',default='None',action='store_true',required=False)
@@ -232,26 +232,29 @@ F_spec4_mcmc, F2_spec4_mcmc,va_spec4_mcmc, vm_spec4_mcmc,lnf_spec4_mcmc = map(la
                              zip(*np.percentile(samples_spec4, [16, 50, 84],axis=0)))
 
 
-## Print results
-print ("F_v_spec1 = %s" % F_mcmc)
-print ("v_a_spec1 = %s" % va_mcmc)
-print ("v_m_spec1 = %s" % vm_mcmc)
+print("""Model 1 MCMC result:
+    F_v_spec1 = {0[0]} +{0[1]} -{0[2]} (truth: {1})
+    v_a_spec1 = {2[0]} +{2[1]} -{2[2]} (truth: {3})
+    v_m_spec1 = {4[0]} +{4[1]} -{4[2]} (truth: {5})
+""".format(F_mcmc, F_true, va_mcmc, va_true, vm_mcmc, vm_true))
 
-print ("F_v_spec2 = %s" % F_spec2_mcmc)
-print ("v_a_spec2 = %s" % va_spec2_mcmc)
-print ("v_m_spec2 = %s" % vm_spec2_mcmc)
+print("""Model 2 MCMC result:
+    F_v_spec2 = {0[0]} +{0[1]} -{0[2]} (truth: {1})
+    v_a_spec2 = {2[0]} +{2[1]} -{2[2]} (truth: {3})
+    v_m_spec2 = {4[0]} +{4[1]} -{4[2]} (truth: {5})
+""".format(F_spec2_mcmc, F_true, va_spec2_mcmc, va_true, vm_spec2_mcmc, vm_true))
 
-print ("F_v_spec3 = %s" % F_spec3_mcmc)
-print ("v_a_spec3 = %s" % va_spec3_mcmc)
-print ("v_m_spec3 = %s" % vm_spec3_mcmc)
+print("""Model 3 MCMC result:
+    F_v_spec3 = {0[0]} +{0[1]} -{0[2]} (truth: {1})
+    v_a_spec3 = {2[0]} +{2[1]} -{2[2]} (truth: {3})
+    v_m_spec3 = {4[0]} +{4[1]} -{4[2]} (truth: {5})
+""".format(F_spec3_mcmc, F_true, va_spec3_mcmc, va_true, vm_spec3_mcmc, vm_true))
 
-print ("F_v_spec4 = %s" % F_spec4_mcmc)
-print ("F2_v_spec4 = %s" % F2_spec4_mcmc)
-print ("v_a_spec4 = %s" % va_spec4_mcmc)
-print ("v_m_spec4 = %s" % vm_spec4_mcmc)
-
-#print "Log Likelihood for Model 1 = %s" %lnlike([F_mcmc,va_mcmc,vm_mcmc,lnf_mcmc], freqs, flux, error)
-
+print("""Model 4 MCMC result:
+    F_v_spec4 = {0[0]} +{0[1]} -{0[2]} (truth: {1})
+    v_a_spec4 = {2[0]} +{2[1]} -{2[2]} (truth: {3})
+    v_m_spec4 = {4[0]} +{4[1]} -{4[2]} (truth: {5})
+""".format(F_spec4_mcmc, F_true, va_spec4_mcmc, va_true, vm_spec4_mcmc, vm_true))
 
 # Write results to files
 days = re.findall('\d+',data_file.split('_')[1])
