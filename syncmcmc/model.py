@@ -47,21 +47,15 @@ beta5_2 = (1.0 - p)/2.0
 
 # Shape of spectrum at each break
 
-#s_1 = 1.06
-#s_2 = 1.76 - 0.38*p
-#s_3 = 0.8 - 0.03*p
-s_4 = 3.63 * p - 1.60
-s_5 = 1.25 - 0.18 * p
-
-# Values from Granot and Sari
-#s_1 = 1.06
-#s_2 = 1.76 - 0.38*p
-#s_3 = 0.8 - 0.03*p
-
-## Values from Berger et al. 2011
 s_1 = 1.5
 s_2 = (1.76 + 0.05*p)
 s_3 = (0.8 - 0.03*p)
+s_4 = 3.63 * p - 1.60
+s_5 = 1.25 - 0.18 * p
+
+
+
+
 
 
 
