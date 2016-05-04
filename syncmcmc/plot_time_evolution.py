@@ -1,5 +1,3 @@
-#!/usr/bin/env python                                                          
-#                        
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
@@ -7,6 +5,15 @@ from model import *
 sns.set_style("white")
 
 
+
+"""
+
+   Given parameter estimates for the flux normalization factor, 
+   self-absorption frequency, and characteristic frequency, plot 
+   them as a function of time. Takes as input files the filesp
+   produced by "run_all_epochs.py".
+
+"""
 
 # Load data files
 
