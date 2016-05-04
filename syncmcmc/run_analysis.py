@@ -1,4 +1,4 @@
-from priorclasses import FluxFrequencyPriors, UniformPrior,FluxFrequencyPriorsCombinedSpectrum
+from all_classes import FluxFrequencyPriors, UniformPrior,FluxFrequencyPriorsCombinedSpectrum
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
@@ -64,9 +64,9 @@ sns.set_style("white")
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input', help='Specify input file for retrieving data', dest='data',type=str,default='None',action='store',required=True)
 parser.add_argument('-r', '--raw', help='Plot raw data', dest='raw',default='None',action='store_true',required=False)
-parser.add_argument('-fp', '--fprior', help='Define uniform prior bounds for flux normalization, -fp lower upper', dest='fluxprior',default='1.,155.',action='store',required=False)
-parser.add_argument('-vap', '--vaprior', help='Define uniform prior bounds for self absorption frequency, -vap lower upper', dest='vaprior',type=str,default='1E8,1E12',action='store',required=False)
-parser.add_argument('-vmp', '--vmprior', help='Define uniform prior bounds for characteristic frequency, -vam lower upper', dest='vmprior',type=str,default='1E8,1E12',action='store',required=False)
+parser.add_argument('-fp', '--fprior', help='Define uniform prior bounds for flux normalization, -fp lower upper', dest='fluxprior',default='1.,110.',action='store',required=False)
+parser.add_argument('-vap', '--vaprior', help='Define uniform prior bounds for self absorption frequency, -vap lower upper', dest='vaprior',type=str,default='1E9,42594740063.087387',action='store',required=False)
+parser.add_argument('-vmp', '--vmprior', help='Define uniform prior bounds for characteristic frequency, -vam lower upper', dest='vmprior',type=str,default='1E9,916740631070.63794',action='store',required=False)
 parser.add_argument('-lnfp' '--lnfprior', help='Define uniform prior bounds for fractional amount by which variance is underestimated, -lnfp lower upper', dest='lnfprior',type=str, default='-3.,-0.01',action='store',required=False)
 parser.add_argument('-c', '--corner', help='Plot corner plots', dest='corner',default='None',action='store_true',required=False)
 parser.add_argument('-t', '--trace', help='Plot MCMC traces', dest='traces',default='None',action='store_true',required=False)
@@ -232,28 +232,24 @@ F_spec4_mcmc, F2_spec4_mcmc,va_spec4_mcmc, vm_spec4_mcmc,lnf_spec4_mcmc = map(la
                              zip(*np.percentile(samples_spec4, [16, 50, 84],axis=0)))
 
 
-print F_mcmc
-print F_mcmc[0]
-print F_mcmc[1]
-print F_mcmc[2]
 ## Print results
-#print ("F_v_spec1 = %s" % F_mcmc)
-#print ("v_a_spec1 = %s" % va_mcmc)
-#print ("v_m_spec1 = %s" % vm_mcmc)
-#
-#print ("F_v_spec2 = %s" % F_spec2_mcmc)
-#print ("v_a_spec2 = %s" % va_spec2_mcmc)
-#print ("v_m_spec2 = %s" % vm_spec2_mcmc)
-#
-#print ("F_v_spec3 = %s" % F_spec3_mcmc)
-#print ("v_a_spec3 = %s" % va_spec3_mcmc)
-#print ("v_m_spec3 = %s" % vm_spec3_mcmc)
-#
-#print ("F_v_spec4 = %s" % F_spec4_mcmc)
-#print ("F2_v_spec4 = %s" % F2_spec4_mcmc)
-#print ("v_a_spec4 = %s" % va_spec4_mcmc)
-#print ("v_m_spec4 = %s" % vm_spec4_mcmc)
-#
+print ("F_v_spec1 = %s" % F_mcmc)
+print ("v_a_spec1 = %s" % va_mcmc)
+print ("v_m_spec1 = %s" % vm_mcmc)
+
+print ("F_v_spec2 = %s" % F_spec2_mcmc)
+print ("v_a_spec2 = %s" % va_spec2_mcmc)
+print ("v_m_spec2 = %s" % vm_spec2_mcmc)
+
+print ("F_v_spec3 = %s" % F_spec3_mcmc)
+print ("v_a_spec3 = %s" % va_spec3_mcmc)
+print ("v_m_spec3 = %s" % vm_spec3_mcmc)
+
+print ("F_v_spec4 = %s" % F_spec4_mcmc)
+print ("F2_v_spec4 = %s" % F2_spec4_mcmc)
+print ("v_a_spec4 = %s" % va_spec4_mcmc)
+print ("v_m_spec4 = %s" % vm_spec4_mcmc)
+
 #print "Log Likelihood for Model 1 = %s" %lnlike([F_mcmc,va_mcmc,vm_mcmc,lnf_mcmc], freqs, flux, error)
 
 
@@ -269,22 +265,22 @@ spec4_results = [float(days[0]),F_spec4_mcmc[0],F_spec4_mcmc[1],F_spec4_mcmc[2],
                 vm_spec4_mcmc[0],vm_spec4_mcmc[1],vm_spec4_mcmc[2]]
 
 
-#with open("results/spectrum1_results_granotsari","a") as input_file:
-#    np.savetxt(input_file,spec1_results, fmt='%1.5f',newline=' ')
-#    input_file.write('\n')
-#
-#with open("results/spectrum2_results_granotsari","a") as input_file:
-#    np.savetxt(input_file,spec2_results, fmt='%1.5f',newline=' ')
-#    input_file.write('\n')
-#
-#with open("results/spectrum3_results_granotsari","a") as input_file:
-#    np.savetxt(input_file,spec3_results, fmt='%1.5f',newline=' ')
-#    input_file.write('\n')
-#
-#with open("results/spectrum4_results_granotsari","a") as input_file:
-#    np.savetxt(input_file,spec4_results, fmt='%1.5f',newline=' ')
-#    input_file.write('\n')    
-#
+with open("results/spectrum1_results_granotsari","a") as input_file:
+    np.savetxt(input_file,spec1_results, fmt='%1.5f',newline=' ')
+    input_file.write('\n')
+
+with open("results/spectrum2_results_granotsari","a") as input_file:
+    np.savetxt(input_file,spec2_results, fmt='%1.5f',newline=' ')
+    input_file.write('\n')
+
+with open("results/spectrum3_results_granotsari","a") as input_file:
+    np.savetxt(input_file,spec3_results, fmt='%1.5f',newline=' ')
+    input_file.write('\n')
+
+with open("results/spectrum4_results_granotsari","a") as input_file:
+    np.savetxt(input_file,spec4_results, fmt='%1.5f',newline=' ')
+    input_file.write('\n')    
+
 
 v_range = np.linspace(1E9,350E9,1E4)
 plt.figure()
