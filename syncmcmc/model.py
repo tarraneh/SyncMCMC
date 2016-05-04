@@ -56,9 +56,6 @@ s_5 = 1.25 - 0.18 * p
 
 
 
-
-
-
 ### Synchrotron Models ###
 
 # Define synchrotron spectrum for Model 1 

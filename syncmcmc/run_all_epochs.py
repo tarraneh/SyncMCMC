@@ -24,7 +24,7 @@ sns.set_style("white")
    ie. number of guesses per array should equal the number of data files. 
 
 
-   Usage: model.py [options]
+   Usage: run_all_epochs.py [options]
 
    Outputs best fit parameters for F_v, v_a, and v_m and a plot of the fit.
 
@@ -52,13 +52,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-fp', '--fprior', help='Define uniform prior bounds for flux normalization, -fp lower upper', dest='fluxprior',default='1.,110.',action='store',required=False)
 parser.add_argument('-vap', '--vaprior', help='Define uniform prior bounds for self absorption frequency, -vap lower upper', dest='vaprior',type=str,default='1E9,1E12',action='store',required=False)
 parser.add_argument('-vmp', '--vmprior', help='Define uniform prior bounds for characteristic frequency, -vam lower upper', dest='vmprior',type=str,default='1E9,1E12',action='store',required=False)
+parser.add_argument('-lnfp' '--lnfprior', help='Define uniform prior bounds for fractional amount by which variance is underestimated, -lnfp lower upper', dest='lnfprior',type=str, default='-3.,-0.01',action='store',required=False)
 
 
 args = parser.parse_args()
 flux_bounds = args.fluxprior
 va_bounds = args.vaprior
 vm_bounds = args.vmprior
-
+lnf_bounds = args.lnfprior
 
 
 
@@ -87,7 +88,7 @@ true_lnf_values = [-0.7,-0.7,-0.7,-0.7,-0.7,-0.7,-0.7,-0.7,-0.7,-0.7,-0.7,-0.7,-
 priors_1 = [UniformPrior(float(flux_bounds.split(',')[0]),float(flux_bounds.split(',')[1])),
           UniformPrior(float(va_bounds.split(',')[0]),float(va_bounds.split(',')[1])),
           UniformPrior(float(vm_bounds.split(',')[0]),float(vm_bounds.split(',')[1])), 
-          UniformPrior(-3.,-0.01)]
+          UniformPrior(float(lnf_bounds.split(',')[0]),float(lnf_bounds.split(',')[1]))]
 
 
 # Create a list of priors, one for each model

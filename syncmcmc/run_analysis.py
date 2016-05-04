@@ -17,7 +17,7 @@ sns.set_style("white")
    Run a Markov-Chain Monte Carlo sampler to determine best fit parameters for a synchrotron model. 
 
 
-   Usage: model.py [options] -i filename
+   Usage: run_analysis.py [options] -i filename
 
    Outputs best fit parameters for F_v, v_a, and v_m and a plot of the fit.
 
@@ -231,6 +231,7 @@ F_spec3_mcmc, va_spec3_mcmc, vm_spec3_mcmc,lnf_spec3_mcmc = map(lambda v: (v[1],
 F_spec4_mcmc, F2_spec4_mcmc,va_spec4_mcmc, vm_spec4_mcmc,lnf_spec4_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
                              zip(*np.percentile(samples_spec4, [16, 50, 84],axis=0)))
 
+# Print results
 
 print("""Model 1 MCMC result:
     F_v_spec1 = {0[0]} +{0[1]} -{0[2]} (truth: {1})
@@ -255,6 +256,7 @@ print("""Model 4 MCMC result:
     v_a_spec4 = {2[0]} +{2[1]} -{2[2]} (truth: {3})
     v_m_spec4 = {4[0]} +{4[1]} -{4[2]} (truth: {5})
 """.format(F_spec4_mcmc, F_true, va_spec4_mcmc, va_true, vm_spec4_mcmc, vm_true))
+
 
 # Write results to files
 days = re.findall('\d+',data_file.split('_')[1])
@@ -292,7 +294,7 @@ plt.plot(v_range,spectrum(v_range,F_mcmc[0],va_mcmc[0],vm_mcmc[0]),color='#1b9e7
 plt.plot(v_range,spectrum_2(v_range,F_spec2_mcmc[0],va_spec2_mcmc[0],vm_spec2_mcmc[0]),color='grey',label='Spectrum 2',lw='0.7')
 plt.plot(v_range,weighted_spectrum(v_range,F_spec3_mcmc[0],va_spec3_mcmc[0],vm_spec3_mcmc[0]),ls='-.',color='#7570b3',label='Weighted Spectrum (F1=F2)')
 plt.plot(v_range,comb_spectrum(v_range,F_spec4_mcmc[0],F2_spec4_mcmc[0],va_spec4_mcmc[0],vm_spec4_mcmc[0]),ls=':',color='#666666',label='Weighted Spectrum')
-#plt.legend()
+plt.legend()
 plt.xscale('log')
 plt.yscale('log')
 plt.xlabel('Frequency [Hz]')
