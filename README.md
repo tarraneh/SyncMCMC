@@ -21,6 +21,11 @@ The following files are included in the repository.
 - `run_all_epochs.py`: Performs the full parameter estimate analysis on 16 epochs of data, produces plots, and outputs results to files. Requires that paths to all data files are specified in the script.
 - `plot_time_evolution.py`: Plots time evolution of parameter estimates from outputs produced by run_all_epochs.py. 
 - `equipartition.py`: Calculates various physical parameters based on parameter estimates from outputs produced by run_all_epochs.py.
+- `all_classes.py`: Contains classes used throughout the repository.
+- `model.py`: Contains all four synchrotron models and their respective likelihood functions.
+- `read_data_io.py`: Contains function which reads in and parses a data file.
+- `runmcmc.py`: Contains function which executes parallel tempered Markov Chain Monte Carlo sampling
+
 
 ### Usage
 
@@ -29,4 +34,4 @@ It is highly recommended that the user runs the run_analysis.py script prior to 
 
 ### Data File Format
 
-Data files should be formatted in a particular manner. Failure to properly format data files will prevent the analysis scripts from executing. All files should contain three columns listing the frequency, flux, and error in that order, and separated by commas. Any additional comment lines should include a '#'.
+Data files should be formatted in a particular manner. Failure to properly format data files will prevent the analysis scripts from executing. All files should contain three columns listing the frequency, flux, and error in that order, and separated by commas. Any additional comment lines should include a '#'. Please see `tutorial.ipynb` for details on the specific formatting.
