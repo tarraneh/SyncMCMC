@@ -1,4 +1,3 @@
 
 import syncmcmc
-# Need . to tell it to look in parent directory
-from syncmcmc import priorclasses
+from syncmcmc import all_classes
